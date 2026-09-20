@@ -91,6 +91,21 @@
             android:exported="false"
             android:label="Manage Budgets"
             android:parentActivityName=".MainActivity" />
+
+        <!-- Watchlist Activity (Phase 10) -->
+        <activity
+            android:name=".ui.watchlist.WatchlistActivity"
+            android:exported="false"
+            android:label="Watchlist"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Stock Detail Activity (Phase 10) -->
+        <activity
+            android:name=".ui.watchlist.StockDetailActivity"
+            android:exported="false"
+            android:label="Stock Detail"
+            android:parentActivityName=".ui.watchlist.WatchlistActivity" />
     </application>
 
 </manifest>

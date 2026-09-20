@@ -3,6 +3,7 @@ package com.example.finora
 import android.app.Application
 import com.example.finora.data.db.FinoraDatabase
 import com.example.finora.repository.*
+import com.example.finora.util.StockPriceHistoryStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,7 +23,13 @@ class FinoraApp : Application() {
     val categoryRepository: CategoryRepository by lazy { CategoryRepository(database.categoryDao()) }
     val transactionRepository: TransactionRepository by lazy { TransactionRepository(database.transactionDao()) }
     val budgetRepository: BudgetRepository by lazy { BudgetRepository(database.budgetDao()) }
-    val watchlistRepository: WatchlistRepository by lazy { WatchlistRepository(database.watchlistDao()) }
+    val stockPriceHistoryStore: StockPriceHistoryStore by lazy { StockPriceHistoryStore(this) }
+    val watchlistRepository: WatchlistRepository by lazy {
+        WatchlistRepository(
+            watchlistDao = database.watchlistDao(),
+            historyStore = stockPriceHistoryStore
+        )
+    }
     val portfolioRepository: PortfolioRepository by lazy { PortfolioRepository(database.portfolioDao()) }
     val stockRepository: StockRepository by lazy { StockRepository(database.watchlistDao(), database.portfolioDao()) }
     val netWorthRepository: NetWorthRepository by lazy { NetWorthRepository(database.accountDao()) }
