@@ -187,23 +187,23 @@ class TransactionFlowTest {
     }
 
     /**
-     * Verifies that receipt capture (Phase 6) is active and location placeholder (Phase 7)
-     * is still intact in AddEditTransactionActivity and TransactionDetailActivity.
+     * Verifies that receipt capture (Phase 6) and location tagging (Phase 7)
+     * are active in AddEditTransactionActivity and conditionally rendered in TransactionDetailActivity.
      */
     @Test
     fun testPlaceholderSectionsVisibleInAddEditAndDetail(): Unit = runBlocking {
-        // 1. AddEditTransactionActivity: receipt scan button is active, location is placeholder
+        // 1. AddEditTransactionActivity: receipt scan button and location switch are active
         ActivityScenario.launch(AddEditTransactionActivity::class.java).use {
             onView(withId(R.id.btn_scan_receipt))
                 .check(matches(isDisplayed()))
                 .check(matches(isEnabled()))
 
-            onView(withId(R.id.btn_tag_location_placeholder))
+            onView(withId(R.id.switch_tag_location))
                 .check(matches(isDisplayed()))
-                .check(matches(not(isEnabled())))
+                .check(matches(isEnabled()))
         }
 
-        // 2. TransactionDetailActivity: receipt section is hidden when no receipt, location placeholder is visible
+        // 2. TransactionDetailActivity: receipt & location sections are hidden when not tagged
         val accountId = app.accountRepository.insert(
             Account(name = "Test Account", type = AccountType.CASH.storageValue, balance = 100.0)
         ).toInt()
@@ -216,7 +216,7 @@ class TransactionFlowTest {
         }
         ActivityScenario.launch<TransactionDetailActivity>(detailIntent).use {
             onView(withId(R.id.layout_receipt_detail_section)).check(matches(not(isDisplayed())))
-            onView(withId(R.id.layout_location_detail_placeholder)).check(matches(isDisplayed()))
+            onView(withId(R.id.layout_location_detail_section)).check(matches(not(isDisplayed())))
         }
     }
 
@@ -266,7 +266,7 @@ class TransactionFlowTest {
             // In TransactionDetailActivity: assert details and placeholders
             onView(withId(R.id.tv_detail_merchant)).check(matches(withText("Costco Wholesale")))
             onView(withId(R.id.layout_receipt_detail_section)).check(matches(not(isDisplayed())))
-            onView(withId(R.id.layout_location_detail_placeholder)).perform(scrollTo()).check(matches(isDisplayed()))
+            onView(withId(R.id.layout_location_detail_section)).check(matches(not(isDisplayed())))
 
             // Click Edit Transaction
             onView(withId(R.id.btn_edit_transaction)).perform(scrollTo(), click())

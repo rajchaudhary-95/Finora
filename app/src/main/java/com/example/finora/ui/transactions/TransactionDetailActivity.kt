@@ -1,6 +1,8 @@
 package com.example.finora.ui.transactions
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -135,6 +137,32 @@ class TransactionDetailActivity : AppCompatActivity() {
             }
         } else {
             binding.layoutReceiptDetailSection.visibility = View.GONE
+        }
+
+        // Location section (Phase 7): show address, coordinates, and Open in Maps button when present, hide entirely when null
+        if (tx.latitude != null && tx.longitude != null) {
+            binding.layoutLocationDetailSection.visibility = View.VISIBLE
+            binding.tvDetailCoordinates.text = String.format(Locale.US, "%.5f, %.5f", tx.latitude, tx.longitude)
+            if (!tx.address.isNullOrBlank()) {
+                binding.tvDetailAddress.text = tx.address
+            } else {
+                binding.tvDetailAddress.text = "Geotagged Location"
+            }
+
+            binding.btnOpenInMaps.setOnClickListener {
+                val lat = tx.latitude
+                val lng = tx.longitude
+                val merchantQuery = Uri.encode(tx.merchant)
+                val geoUri = Uri.parse("geo:$lat,$lng?q=$lat,$lng($merchantQuery)")
+                val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
+                try {
+                    startActivity(mapIntent)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(this@TransactionDetailActivity, "No Maps application installed to view location", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            binding.layoutLocationDetailSection.visibility = View.GONE
         }
     }
 

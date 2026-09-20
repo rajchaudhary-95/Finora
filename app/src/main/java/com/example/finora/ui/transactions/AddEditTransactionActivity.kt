@@ -1,8 +1,10 @@
 package com.example.finora.ui.transactions
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.os.Environment
 import android.view.View
@@ -22,15 +24,29 @@ import com.example.finora.data.db.entities.Category
 import com.example.finora.data.db.entities.Transaction
 import com.example.finora.databinding.ActivityAddEditTransactionBinding
 import com.example.finora.util.ImageUtil
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Activity for adding or editing a transaction.
- * Supports date picker, account selection, category selection, receipt photo capture, and explicit Intent ID passing.
+ * Supports date picker, account selection, category selection, receipt photo capture,
+ * location tagging via FusedLocationProviderClient + Geocoder, and explicit Intent ID passing.
+ *
+ * Testing note: Testing location convincingly on an Android emulator requires setting custom
+ * coordinates via Extended Controls (...) > Location, as the default emulator location may be static or unset.
  */
 class AddEditTransactionActivity : AppCompatActivity() {
 
@@ -38,6 +54,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
         const val EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID"
         private const val KEY_RECEIPT_IMAGE_PATH = "KEY_RECEIPT_IMAGE_PATH"
         private const val KEY_PENDING_PHOTO_PATH = "KEY_PENDING_PHOTO_PATH"
+        private const val KEY_LATITUDE = "KEY_LATITUDE"
+        private const val KEY_LONGITUDE = "KEY_LONGITUDE"
+        private const val KEY_ADDRESS = "KEY_ADDRESS"
     }
 
     private lateinit var binding: ActivityAddEditTransactionBinding
@@ -62,6 +81,13 @@ class AddEditTransactionActivity : AppCompatActivity() {
 
     private var currentReceiptImagePath: String? = null
     private var pendingPhotoFile: File? = null
+
+    // Location tagging state (Phase 7)
+    private var currentLatitude: Double? = null
+    private var currentLongitude: Double? = null
+    private var currentAddress: String? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCancellationTokenSource: CancellationTokenSource? = null
 
     /**
      * Camera permission contract.
@@ -100,10 +126,41 @@ class AddEditTransactionActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Location permission contract (Phase 7).
+     * Requests ACCESS_FINE_LOCATION, falls back to checking ACCESS_COARSE_LOCATION.
+     * If denied entirely, toggles switch off and shows an informative Snackbar.
+     */
+    private val requestLocationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            fetchCurrentLocation()
+        } else {
+            // Check if coarse location was granted
+            val coarseGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            if (coarseGranted) {
+                fetchCurrentLocation()
+            } else {
+                binding.switchTagLocation.isChecked = false
+                Snackbar.make(
+                    binding.root,
+                    "Location permission is needed to tag spending location. You can still save without it.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddEditTransactionBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         currentTransactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, -1)
         val isEditMode = currentTransactionId != -1
@@ -111,22 +168,42 @@ class AddEditTransactionActivity : AppCompatActivity() {
         savedInstanceState?.let { bundle ->
             currentReceiptImagePath = bundle.getString(KEY_RECEIPT_IMAGE_PATH)
             bundle.getString(KEY_PENDING_PHOTO_PATH)?.let { pendingPhotoFile = File(it) }
+            if (bundle.containsKey(KEY_LATITUDE) && bundle.containsKey(KEY_LONGITUDE)) {
+                currentLatitude = bundle.getDouble(KEY_LATITUDE)
+                currentLongitude = bundle.getDouble(KEY_LONGITUDE)
+                currentAddress = bundle.getString(KEY_ADDRESS)
+            }
         }
 
         setupToolbar(isEditMode)
         setupDatePicker()
         setupReceiptCapture()
+        setupLocationTagging()
         setupSaveButton(isEditMode)
         observeFormDependencies(isEditMode)
 
         // Restore receipt thumbnail if state had one
         currentReceiptImagePath?.let { displayReceiptThumbnail(it) }
+
+        // Restore location if state had one
+        if (currentLatitude != null && currentLongitude != null) {
+            binding.switchTagLocation.isChecked = true
+            displayLocationInfo(currentLatitude!!, currentLongitude!!, currentAddress)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(KEY_RECEIPT_IMAGE_PATH, currentReceiptImagePath)
         pendingPhotoFile?.let { outState.putString(KEY_PENDING_PHOTO_PATH, it.absolutePath) }
+        currentLatitude?.let { outState.putDouble(KEY_LATITUDE, it) }
+        currentLongitude?.let { outState.putDouble(KEY_LONGITUDE, it) }
+        currentAddress?.let { outState.putString(KEY_ADDRESS, it) }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        locationCancellationTokenSource?.cancel()
     }
 
     private fun setupToolbar(isEditMode: Boolean) {
@@ -291,6 +368,130 @@ class AddEditTransactionActivity : AppCompatActivity() {
         binding.btnScanReceipt.visibility = View.VISIBLE
     }
 
+    private fun setupLocationTagging() {
+        binding.switchTagLocation.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                if (currentLatitude != null && currentLongitude != null) {
+                    displayLocationInfo(currentLatitude!!, currentLongitude!!, currentAddress)
+                } else {
+                    checkLocationPermissionAndFetch()
+                }
+            } else {
+                clearLocationInfo()
+            }
+        }
+    }
+
+    private fun checkLocationPermissionAndFetch() {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            fetchCurrentLocation()
+        } else {
+            requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun fetchCurrentLocation() {
+        binding.layoutLocationLoading.visibility = View.VISIBLE
+        binding.cardLocationInfo.visibility = View.GONE
+
+        lifecycleScope.launch {
+            locationCancellationTokenSource?.cancel()
+            val cts = CancellationTokenSource()
+            locationCancellationTokenSource = cts
+
+            val location = withTimeoutOrNull(10_000L) {
+                try {
+                    fusedLocationClient.awaitCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        cts.token
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+
+            binding.layoutLocationLoading.visibility = View.GONE
+
+            if (location != null) {
+                currentLatitude = location.latitude
+                currentLongitude = location.longitude
+
+                // Reverse geocode on Dispatchers.IO
+                val resolvedAddress = withContext(Dispatchers.IO) {
+                    try {
+                        val geocoder = Geocoder(this@AddEditTransactionActivity, Locale.getDefault())
+                        @Suppress("DEPRECATION")
+                        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                        if (!addresses.isNullOrEmpty()) {
+                            addresses[0].getAddressLine(0)
+                        } else {
+                            null
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+
+                currentAddress = resolvedAddress
+                displayLocationInfo(location.latitude, location.longitude, currentAddress)
+            } else {
+                if (currentLatitude == null) {
+                    binding.switchTagLocation.isChecked = false
+                    Snackbar.make(
+                        binding.root,
+                        "Location request timed out or unavailable. You can still save without location.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun displayLocationInfo(lat: Double, lng: Double, address: String?) {
+        binding.cardLocationInfo.visibility = View.VISIBLE
+        binding.tvLocationCoordinates.text = String.format(Locale.US, "%.5f, %.5f", lat, lng)
+        if (!address.isNullOrBlank()) {
+            binding.tvLocationAddress.text = address
+        } else {
+            binding.tvLocationAddress.text = "Coordinates tagged (address unavailable)"
+        }
+    }
+
+    private fun clearLocationInfo() {
+        currentLatitude = null
+        currentLongitude = null
+        currentAddress = null
+        binding.cardLocationInfo.visibility = View.GONE
+        binding.layoutLocationLoading.visibility = View.GONE
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun FusedLocationProviderClient.awaitCurrentLocation(
+        priority: Int,
+        token: com.google.android.gms.tasks.CancellationToken
+    ): android.location.Location? = suspendCancellableCoroutine { cont ->
+        getCurrentLocation(priority, token)
+            .addOnSuccessListener { loc ->
+                if (cont.isActive) cont.resume(loc)
+            }
+            .addOnFailureListener { ex ->
+                if (cont.isActive) cont.resumeWithException(ex)
+            }
+            .addOnCanceledListener {
+                if (cont.isActive) cont.cancel()
+            }
+    }
+
     private fun populateForm(tx: Transaction) {
         binding.etAmount.setText(String.format(Locale.US, "%.2f", tx.amount))
         binding.etMerchant.setText(tx.merchant)
@@ -317,6 +518,18 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 currentReceiptImagePath = path
                 displayReceiptThumbnail(path)
             }
+        }
+
+        // Display existing location if present
+        if (tx.latitude != null && tx.longitude != null) {
+            currentLatitude = tx.latitude
+            currentLongitude = tx.longitude
+            currentAddress = tx.address
+            binding.switchTagLocation.isChecked = true
+            displayLocationInfo(tx.latitude, tx.longitude, tx.address)
+        } else {
+            binding.switchTagLocation.isChecked = false
+            clearLocationInfo()
         }
     }
 
@@ -367,6 +580,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         note = note,
                         date = selectedDateMillis,
                         receiptImagePath = currentReceiptImagePath,
+                        latitude = currentLatitude,
+                        longitude = currentLongitude,
+                        address = currentAddress,
                         updatedAt = System.currentTimeMillis()
                     )
                     viewModel.updateTransaction(updatedTransaction, existingTransaction!!)
@@ -379,6 +595,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         note = note,
                         date = selectedDateMillis,
                         receiptImagePath = currentReceiptImagePath,
+                        latitude = currentLatitude,
+                        longitude = currentLongitude,
+                        address = currentAddress,
                         createdAt = System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis()
                     )

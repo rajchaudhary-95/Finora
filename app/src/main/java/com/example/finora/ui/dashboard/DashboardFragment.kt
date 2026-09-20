@@ -27,6 +27,11 @@ class DashboardFragment : Fragment() {
             val intent = android.content.Intent(requireContext(), com.example.finora.ui.accounts.AccountsActivity::class.java)
             startActivity(intent)
         }
+
+        binding.btnNearbySpending.setOnClickListener {
+            val intent = android.content.Intent(requireContext(), com.example.finora.ui.nearby.NearbySpendingActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroyView() {

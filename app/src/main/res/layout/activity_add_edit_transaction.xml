@@ -280,26 +280,112 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ======================================================== -->
-            <!-- Placeholder Section: Location Tagging (Phase 7)           -->
+            <!-- Location Tagging Section (Phase 7)                        -->
             <!-- ======================================================== -->
             <LinearLayout
-                android:id="@+id/layout_location_placeholder"
+                android:id="@+id/layout_location_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="12dp">
+                android:layout_marginTop="16dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_tag_location_placeholder"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:enabled="false"
-                    android:text="Tag Location (Coming in Phase 7)"
-                    android:textColor="@color/text_muted"
-                    app:icon="@drawable/ic_location_placeholder"
-                    app:iconTint="@color/text_muted"
-                    app:strokeColor="@color/divider_color" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_location_placeholder"
+                        app:tint="@color/primary_teal"
+                        android:contentDescription="Location Pin" />
+
+                    <TextView
+                        android:id="@+id/tv_location_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Tag Current Location"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_tag_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- Loading State -->
+                <LinearLayout
+                    android:id="@+id/layout_location_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ProgressBar
+                        android:id="@+id/progress_location"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:indeterminateTint="@color/primary_teal" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Acquiring GPS fix..."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+
+                <!-- Tagged Location Info Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_location_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/divider_color"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@color/surface_card"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/tv_location_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            tools:text="1600 Amphitheatre Pkwy, Mountain View, CA" />
+
+                        <TextView
+                            android:id="@+id/tv_location_coordinates"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_muted"
+                            tools:text="37.42200, -122.08410" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
 
             <!-- Save Action Button -->

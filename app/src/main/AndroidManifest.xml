@@ -77,6 +77,13 @@
             android:exported="false"
             android:label="Transaction Details"
             android:parentActivityName=".MainActivity" />
+
+        <!-- Nearby Spending Activity (Phase 7) -->
+        <activity
+            android:name=".ui.nearby.NearbySpendingActivity"
+            android:exported="false"
+            android:label="Nearby Spending"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
