@@ -1,6 +1,7 @@
 package com.example.finora.ui.transactions
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -41,6 +42,11 @@ class TransactionAdapter(
         fun bind(item: TransactionUiModel) {
             val context = binding.root.context
             binding.tvMerchant.text = item.transaction.merchant
+            binding.badgeAutoCategorized.visibility = if (item.transaction.isAutoCategorized) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
             binding.tvCategoryAccount.text = "${item.categoryName} • ${item.accountName}"
             binding.tvDate.text = dateFormat.format(Date(item.transaction.date))
             binding.ivCategoryIcon.setImageResource(item.categoryIconRes)

@@ -34,4 +34,9 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
 
     suspend fun markRecurring(merchant: String, amount: Double, flag: Boolean) =
         transactionDao.markRecurring(merchant, amount, flag)
+
+    suspend fun resetAllRecurring() = transactionDao.resetAllRecurring()
+
+    suspend fun setRecurringFlag(merchant: String, amount: Double, flag: Boolean) =
+        transactionDao.setRecurringFlag(merchant, amount, flag)
 }

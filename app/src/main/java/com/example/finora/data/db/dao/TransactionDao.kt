@@ -58,6 +58,12 @@ interface TransactionDao {
 
     @Query("UPDATE transactions SET isRecurring = :flag WHERE merchant = :merchant AND ROUND(amount, 0) = ROUND(:amount, 0)")
     suspend fun markRecurring(merchant: String, amount: Double, flag: Boolean)
+
+    @Query("UPDATE transactions SET isRecurring = 0 WHERE isRecurring = 1")
+    suspend fun resetAllRecurring()
+
+    @Query("UPDATE transactions SET isRecurring = :flag WHERE LOWER(TRIM(merchant)) = LOWER(TRIM(:merchant)) AND ROUND(amount, 0) = ROUND(:amount, 0)")
+    suspend fun setRecurringFlag(merchant: String, amount: Double, flag: Boolean)
 }
 
 // Helper data classes for queries

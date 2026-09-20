@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.finora.data.db.entities.Transaction
 import com.example.finora.repository.NetWorthRepository
 import com.example.finora.repository.TransactionRepository
+import com.example.finora.util.RecurringDetector
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the Dashboard tab.
@@ -18,6 +20,10 @@ class DashboardViewModel(
     private val netWorthRepository: NetWorthRepository,
     private val transactionRepository: TransactionRepository
 ) : ViewModel() {
+
+    init {
+        runRecurringDetection()
+    }
 
     // Derived cash net worth (investment component added in Phase 11)
     val netWorth: StateFlow<Double> = netWorthRepository.getCashNetWorth()
@@ -35,8 +41,17 @@ class DashboardViewModel(
             initialValue = emptyList()
         )
 
+    fun runRecurringDetection() {
+        viewModelScope.launch {
+            try {
+                RecurringDetector.runDetection(transactionRepository)
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     fun refreshDashboard() {
-        // TODO: Wire full dashboard refresh in Phase 6
+        runRecurringDetection()
     }
 
     class Factory(

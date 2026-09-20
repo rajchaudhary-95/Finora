@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
 import android.os.Environment
+import android.view.MotionEvent
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +26,7 @@ import com.example.finora.data.db.entities.Account
 import com.example.finora.data.db.entities.Category
 import com.example.finora.data.db.entities.Transaction
 import com.example.finora.databinding.ActivityAddEditTransactionBinding
+import com.example.finora.util.CategorizationRuleEngine
 import com.example.finora.util.ImageUtil
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -30,6 +34,8 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -57,6 +63,8 @@ class AddEditTransactionActivity : AppCompatActivity() {
         private const val KEY_LATITUDE = "KEY_LATITUDE"
         private const val KEY_LONGITUDE = "KEY_LONGITUDE"
         private const val KEY_ADDRESS = "KEY_ADDRESS"
+        private const val KEY_IS_AUTO_CATEGORIZED = "KEY_IS_AUTO_CATEGORIZED"
+        private const val KEY_USER_MANUALLY_CHANGED_CATEGORY = "KEY_USER_MANUALLY_CHANGED_CATEGORY"
     }
 
     private lateinit var binding: ActivityAddEditTransactionBinding
@@ -88,6 +96,14 @@ class AddEditTransactionActivity : AppCompatActivity() {
     private var currentAddress: String? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationCancellationTokenSource: CancellationTokenSource? = null
+
+    // Auto-categorization state (Phase 8)
+    private var isAutoCategorized: Boolean = false
+    private var userManuallyChangedCategory: Boolean = false
+    private var isProgrammaticSpinnerSelection: Boolean = false
+    private var userTouchedCategorySpinner: Boolean = false
+    private var categorizationRuleEngine: CategorizationRuleEngine? = null
+    private var merchantDebounceJob: Job? = null
 
     /**
      * Camera permission contract.
@@ -173,10 +189,14 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 currentLongitude = bundle.getDouble(KEY_LONGITUDE)
                 currentAddress = bundle.getString(KEY_ADDRESS)
             }
+            isAutoCategorized = bundle.getBoolean(KEY_IS_AUTO_CATEGORIZED, false)
+            userManuallyChangedCategory = bundle.getBoolean(KEY_USER_MANUALLY_CHANGED_CATEGORY, false)
         }
 
         setupToolbar(isEditMode)
         setupDatePicker()
+        setupCategorySpinnerListeners()
+        setupMerchantAutoCategorization()
         setupReceiptCapture()
         setupLocationTagging()
         setupSaveButton(isEditMode)
@@ -199,11 +219,64 @@ class AddEditTransactionActivity : AppCompatActivity() {
         currentLatitude?.let { outState.putDouble(KEY_LATITUDE, it) }
         currentLongitude?.let { outState.putDouble(KEY_LONGITUDE, it) }
         currentAddress?.let { outState.putString(KEY_ADDRESS, it) }
+        outState.putBoolean(KEY_IS_AUTO_CATEGORIZED, isAutoCategorized)
+        outState.putBoolean(KEY_USER_MANUALLY_CHANGED_CATEGORY, userManuallyChangedCategory)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         locationCancellationTokenSource?.cancel()
+        merchantDebounceJob?.cancel()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupCategorySpinnerListeners() {
+        binding.spinnerCategory.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_DOWN) {
+                userTouchedCategorySpinner = true
+            }
+            false
+        }
+
+        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (isProgrammaticSpinnerSelection) {
+                    return
+                }
+                if (userTouchedCategorySpinner) {
+                    userManuallyChangedCategory = true
+                    isAutoCategorized = false
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupMerchantAutoCategorization() {
+        binding.etMerchant.doAfterTextChanged { text ->
+            merchantDebounceJob?.cancel()
+            merchantDebounceJob = lifecycleScope.launch {
+                delay(400L)
+                triggerAutoCategorization(text?.toString().orEmpty())
+            }
+        }
+    }
+
+    private fun triggerAutoCategorization(merchantText: String) {
+        if (userManuallyChangedCategory) return
+        val engine = categorizationRuleEngine ?: return
+        val suggested = engine.suggestCategory(merchantText) ?: return
+
+        val targetIndex = categoriesList.indexOfFirst { it.id == suggested.id }
+        if (targetIndex != -1) {
+            isProgrammaticSpinnerSelection = true
+            binding.spinnerCategory.setSelection(targetIndex)
+            isAutoCategorized = true
+            binding.spinnerCategory.post {
+                isProgrammaticSpinnerSelection = false
+            }
+        }
     }
 
     private fun setupToolbar(isEditMode: Boolean) {
@@ -265,15 +338,24 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 launch {
                     viewModel.categories.collect { categories ->
                         categoriesList = categories
+                        categorizationRuleEngine = CategorizationRuleEngine(categories)
                         val categoryNames = categories.map { "${it.name} (${it.type})" }
                         val adapter = ArrayAdapter(this@AddEditTransactionActivity, android.R.layout.simple_spinner_item, categoryNames).apply {
                             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         }
+                        isProgrammaticSpinnerSelection = true
                         binding.spinnerCategory.adapter = adapter
 
                         existingTransaction?.let { tx ->
                             val index = categoriesList.indexOfFirst { it.id == tx.categoryId }
                             if (index != -1) binding.spinnerCategory.setSelection(index)
+                        } ?: run {
+                            if (!userManuallyChangedCategory && !binding.etMerchant.text.isNullOrBlank()) {
+                                triggerAutoCategorization(binding.etMerchant.text.toString())
+                            }
+                        }
+                        binding.spinnerCategory.post {
+                            isProgrammaticSpinnerSelection = false
                         }
                     }
                 }
@@ -505,11 +587,20 @@ class AddEditTransactionActivity : AppCompatActivity() {
             binding.spinnerAccount.setSelection(accountIndex)
         }
 
+        // Set auto-categorization session state
+        isAutoCategorized = tx.isAutoCategorized
+        if (!tx.isAutoCategorized) {
+            userManuallyChangedCategory = true
+        }
+
         // Select category in spinner
-        // TODO: Phase 8 - Auto-categorization will hook in to pre-fill this category Spinner based on merchant text
         val categoryIndex = categoriesList.indexOfFirst { it.id == tx.categoryId }
         if (categoryIndex != -1) {
+            isProgrammaticSpinnerSelection = true
             binding.spinnerCategory.setSelection(categoryIndex)
+            binding.spinnerCategory.post {
+                isProgrammaticSpinnerSelection = false
+            }
         }
 
         // Display existing receipt thumbnail if present
@@ -583,6 +674,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         latitude = currentLatitude,
                         longitude = currentLongitude,
                         address = currentAddress,
+                        isAutoCategorized = isAutoCategorized,
                         updatedAt = System.currentTimeMillis()
                     )
                     viewModel.updateTransaction(updatedTransaction, existingTransaction!!)
@@ -598,6 +690,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         latitude = currentLatitude,
                         longitude = currentLongitude,
                         address = currentAddress,
+                        isAutoCategorized = isAutoCategorized,
                         createdAt = System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis()
                     )
