@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PortfolioDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(holding: PortfolioHolding): Long
 
     @Update
@@ -18,6 +18,9 @@ interface PortfolioDao {
     @Query("SELECT * FROM portfolio_holdings")
     fun getAll(): Flow<List<PortfolioHolding>>
 
-    @Query("SELECT * FROM portfolio_holdings WHERE symbol = :symbol")
+    @Query("SELECT * FROM portfolio_holdings WHERE id = :id")
+    suspend fun getById(id: Int): PortfolioHolding?
+
+    @Query("SELECT * FROM portfolio_holdings WHERE symbol = :symbol LIMIT 1")
     suspend fun getBySymbol(symbol: String): PortfolioHolding?
 }
