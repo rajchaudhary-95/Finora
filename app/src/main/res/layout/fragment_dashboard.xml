@@ -31,14 +31,37 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TOTAL NET WORTH"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:letterSpacing="0.08"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="TOTAL NET WORTH"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.08"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_share_report"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:paddingHorizontal="8dp"
+                        android:text="Share Report"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        app:icon="@drawable/ic_share"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/primary_teal" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_net_worth_amount"

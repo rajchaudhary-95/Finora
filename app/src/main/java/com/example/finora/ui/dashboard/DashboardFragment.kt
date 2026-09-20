@@ -102,6 +102,23 @@ class DashboardFragment : Fragment() {
         binding.btnManageBudgetsGlance.setOnClickListener {
             startActivity(Intent(requireContext(), BudgetSetupActivity::class.java))
         }
+
+        binding.btnShareReport.setOnClickListener {
+            val monthName = SimpleDateFormat("MMMM yyyy", Locale.US).format(Date())
+            val reportText = com.example.finora.util.FinancialReportBuilder.buildReport(
+                monthName = monthName,
+                netWorthBreakdown = viewModel.netWorthBreakdown.value,
+                spendingList = viewModel.categorySpending.value,
+                categories = viewModel.allCategories.value,
+                budgets = budgetViewModel.budgetUiModels.value
+            )
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "Finora Financial Summary - $monthName")
+                putExtra(Intent.EXTRA_TEXT, reportText)
+            }
+            startActivity(Intent.createChooser(sendIntent, "Share Financial Report via"))
+        }
     }
 
     private fun setupRecurringRecyclerView() {

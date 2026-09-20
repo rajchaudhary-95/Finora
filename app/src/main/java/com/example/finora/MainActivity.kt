@@ -74,6 +74,15 @@ class MainActivity : AppCompatActivity() {
             switchFragment(targetTag)
             true
         }
+
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            if (menuItem.itemId == R.id.action_settings) {
+                startActivity(android.content.Intent(this, com.example.finora.ui.settings.SettingsActivity::class.java))
+                true
+            } else {
+                false
+            }
+        }
     }
 
     /**

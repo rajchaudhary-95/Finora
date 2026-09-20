@@ -106,6 +106,13 @@
             android:exported="false"
             android:label="Stock Detail"
             android:parentActivityName=".ui.watchlist.WatchlistActivity" />
+
+        <!-- Settings Activity (Phase 12 Polish) -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
+            android:label="Settings"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

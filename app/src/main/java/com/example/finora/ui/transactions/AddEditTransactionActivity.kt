@@ -3,10 +3,13 @@ package com.example.finora.ui.transactions
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
@@ -14,6 +17,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -65,6 +69,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
         private const val KEY_ADDRESS = "KEY_ADDRESS"
         private const val KEY_IS_AUTO_CATEGORIZED = "KEY_IS_AUTO_CATEGORIZED"
         private const val KEY_USER_MANUALLY_CHANGED_CATEGORY = "KEY_USER_MANUALLY_CHANGED_CATEGORY"
+        private const val KEY_SELECTED_DATE = "KEY_SELECTED_DATE"
+        private const val KEY_SELECTED_ACCOUNT_ID = "KEY_SELECTED_ACCOUNT_ID"
+        private const val KEY_SELECTED_CATEGORY_ID = "KEY_SELECTED_CATEGORY_ID"
     }
 
     private lateinit var binding: ActivityAddEditTransactionBinding
@@ -83,6 +90,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
 
     private var accountsList: List<Account> = emptyList()
     private var categoriesList: List<Category> = emptyList()
+
+    private var restoredAccountId: Int? = null
+    private var restoredCategoryId: Int? = null
 
     private var selectedDateMillis: Long = System.currentTimeMillis()
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
@@ -115,11 +125,24 @@ class AddEditTransactionActivity : AppCompatActivity() {
         if (isGranted) {
             launchCamera()
         } else {
-            Snackbar.make(
-                binding.root,
-                "Camera permission is needed to scan receipts. You can still save this transaction without one.",
-                Snackbar.LENGTH_LONG
-            ).show()
+            if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                Snackbar.make(
+                    binding.root,
+                    "Camera permission was denied. Please enable it in Settings to scan receipts.",
+                    Snackbar.LENGTH_LONG
+                ).setAction("Settings") {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", packageName, null)
+                    }
+                    startActivity(intent)
+                }.show()
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    "Camera permission is needed to scan receipts. You can still save this transaction without one.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
@@ -145,7 +168,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
     /**
      * Location permission contract (Phase 7).
      * Requests ACCESS_FINE_LOCATION, falls back to checking ACCESS_COARSE_LOCATION.
-     * If denied entirely, toggles switch off and shows an informative Snackbar.
+     * If denied entirely, toggles switch off and shows an informative Snackbar with Settings action on permanent denial.
      */
     private val requestLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -162,11 +185,24 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 fetchCurrentLocation()
             } else {
                 binding.switchTagLocation.isChecked = false
-                Snackbar.make(
-                    binding.root,
-                    "Location permission is needed to tag spending location. You can still save without it.",
-                    Snackbar.LENGTH_LONG
-                ).show()
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Snackbar.make(
+                        binding.root,
+                        "Location permission was denied. Please enable it in Settings to tag transactions.",
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Settings") {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", packageName, null)
+                        }
+                        startActivity(intent)
+                    }.show()
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "Location permission is needed to tag spending location. You can still save without it.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
@@ -191,6 +227,15 @@ class AddEditTransactionActivity : AppCompatActivity() {
             }
             isAutoCategorized = bundle.getBoolean(KEY_IS_AUTO_CATEGORIZED, false)
             userManuallyChangedCategory = bundle.getBoolean(KEY_USER_MANUALLY_CHANGED_CATEGORY, false)
+            if (bundle.containsKey(KEY_SELECTED_DATE)) {
+                selectedDateMillis = bundle.getLong(KEY_SELECTED_DATE)
+            }
+            if (bundle.containsKey(KEY_SELECTED_ACCOUNT_ID)) {
+                restoredAccountId = bundle.getInt(KEY_SELECTED_ACCOUNT_ID)
+            }
+            if (bundle.containsKey(KEY_SELECTED_CATEGORY_ID)) {
+                restoredCategoryId = bundle.getInt(KEY_SELECTED_CATEGORY_ID)
+            }
         }
 
         setupToolbar(isEditMode)
@@ -200,7 +245,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
         setupReceiptCapture()
         setupLocationTagging()
         setupSaveButton(isEditMode)
-        observeFormDependencies(isEditMode)
+        observeFormDependencies(isEditMode, savedInstanceState != null)
 
         // Restore receipt thumbnail if state had one
         currentReceiptImagePath?.let { displayReceiptThumbnail(it) }
@@ -221,6 +266,16 @@ class AddEditTransactionActivity : AppCompatActivity() {
         currentAddress?.let { outState.putString(KEY_ADDRESS, it) }
         outState.putBoolean(KEY_IS_AUTO_CATEGORIZED, isAutoCategorized)
         outState.putBoolean(KEY_USER_MANUALLY_CHANGED_CATEGORY, userManuallyChangedCategory)
+        outState.putLong(KEY_SELECTED_DATE, selectedDateMillis)
+
+        val selectedAccountPos = binding.spinnerAccount.selectedItemPosition
+        if (selectedAccountPos in accountsList.indices) {
+            outState.putInt(KEY_SELECTED_ACCOUNT_ID, accountsList[selectedAccountPos].id)
+        }
+        val selectedCategoryPos = binding.spinnerCategory.selectedItemPosition
+        if (selectedCategoryPos in categoriesList.indices) {
+            outState.putInt(KEY_SELECTED_CATEGORY_ID, categoriesList[selectedCategoryPos].id)
+        }
     }
 
     override fun onDestroy() {
@@ -314,7 +369,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
         binding.etDate.setText(dateFormat.format(Date(millis)))
     }
 
-    private fun observeFormDependencies(isEditMode: Boolean) {
+    private fun observeFormDependencies(isEditMode: Boolean, isRestoredFromState: Boolean = false) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Collect accounts
@@ -327,8 +382,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         }
                         binding.spinnerAccount.adapter = adapter
 
-                        existingTransaction?.let { tx ->
-                            val index = accountsList.indexOfFirst { it.id == tx.accountId }
+                        val targetAccountId = restoredAccountId ?: existingTransaction?.accountId
+                        targetAccountId?.let { accId ->
+                            val index = accountsList.indexOfFirst { it.id == accId }
                             if (index != -1) binding.spinnerAccount.setSelection(index)
                         }
                     }
@@ -346,8 +402,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         isProgrammaticSpinnerSelection = true
                         binding.spinnerCategory.adapter = adapter
 
-                        existingTransaction?.let { tx ->
-                            val index = categoriesList.indexOfFirst { it.id == tx.categoryId }
+                        val targetCategoryId = restoredCategoryId ?: existingTransaction?.categoryId
+                        targetCategoryId?.let { catId ->
+                            val index = categoriesList.indexOfFirst { it.id == catId }
                             if (index != -1) binding.spinnerCategory.setSelection(index)
                         } ?: run {
                             if (!userManuallyChangedCategory && !binding.etMerchant.text.isNullOrBlank()) {
@@ -366,7 +423,9 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         val tx = viewModel.getTransactionById(currentTransactionId)
                         if (tx != null) {
                             existingTransaction = tx
-                            populateForm(tx)
+                            if (!isRestoredFromState) {
+                                populateForm(tx)
+                            }
                         } else {
                             Toast.makeText(this@AddEditTransactionActivity, "Transaction not found", Toast.LENGTH_SHORT).show()
                             finish()
@@ -398,6 +457,16 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
                 launchCamera()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Camera Permission")
+                    .setMessage("Finora needs camera access to capture and attach receipts to your transactions.")
+                    .setPositiveButton("Grant") { _, _ ->
+                        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
             else -> {
                 requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -476,6 +545,17 @@ class AddEditTransactionActivity : AppCompatActivity() {
 
         if (fineGranted || coarseGranted) {
             fetchCurrentLocation()
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder(this)
+                .setTitle("Location Permission")
+                .setMessage("Finora uses your location to tag where you made this transaction for spending insights.")
+                .setPositiveButton("Grant") { _, _ ->
+                    requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    binding.switchTagLocation.isChecked = false
+                }
+                .show()
         } else {
             requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }

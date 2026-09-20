@@ -4,9 +4,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -121,6 +124,17 @@ class NearbySpendingActivity : AppCompatActivity() {
 
         if (fineGranted || coarseGranted) {
             fetchLocationAndLoadTransactions()
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder(this)
+                .setTitle("Location Permission")
+                .setMessage("Finora needs location access to calculate distances to your spending locations and sort them nearest-first.")
+                .setPositiveButton("Grant") { _, _ ->
+                    requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    showPermissionDeniedState()
+                }
+                .show()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
@@ -215,7 +229,24 @@ class NearbySpendingActivity : AppCompatActivity() {
         binding.rvNearbyTransactions.visibility = View.GONE
         binding.layoutNearbyEmpty.visibility = View.VISIBLE
         binding.tvEmptyTitle.text = "Location Permission Required"
-        binding.tvEmptySubtitle.text = "Grant location permission to calculate distances and sort transactions nearest-first."
+
+        val isPermanentlyDenied = !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (isPermanentlyDenied) {
+            binding.tvEmptySubtitle.text = "Location permission is permanently denied. Please enable location permissions in App Settings."
+            binding.btnRetryLocation.text = "Open Settings"
+            binding.btnRetryLocation.setOnClickListener {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                startActivity(intent)
+            }
+        } else {
+            binding.tvEmptySubtitle.text = "Grant location permission to calculate distances and sort transactions nearest-first."
+            binding.btnRetryLocation.text = "Grant Permission"
+            binding.btnRetryLocation.setOnClickListener {
+                checkPermissionAndLoad()
+            }
+        }
         binding.btnRetryLocation.visibility = View.VISIBLE
     }
 

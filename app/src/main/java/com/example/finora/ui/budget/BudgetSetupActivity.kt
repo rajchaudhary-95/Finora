@@ -121,6 +121,15 @@ class BudgetSetupActivity : AppCompatActivity() {
         }
         dialogBinding.spinnerBudgetCategory.adapter = spinnerAdapter
 
+        val prefs = getSharedPreferences(
+            com.example.finora.ui.settings.SettingsActivity.PREFS_SETTINGS,
+            android.content.Context.MODE_PRIVATE
+        )
+        dialogBinding.switchRollover.isChecked = prefs.getBoolean(
+            com.example.finora.ui.settings.SettingsActivity.KEY_DEFAULT_ROLLOVER,
+            false
+        )
+
         dialogBinding.btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialogBinding.btnSaveBudget.setOnClickListener {
