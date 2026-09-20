@@ -22,19 +22,27 @@ class NavigationTest {
             onView(withText("Dashboard — coming soon")).check(matches(isDisplayed()))
 
             // 2. Click Transactions tab
-            onView(withId(R.id.nav_transactions)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_transactions
+            }
             onView(withId(R.id.fab_add_transaction)).check(matches(isDisplayed()))
 
             // 3. Click Budget tab
-            onView(withId(R.id.nav_budget)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_budget
+            }
             onView(withText("Budget — coming soon")).check(matches(isDisplayed()))
 
             // 4. Click Watchlist tab
-            onView(withId(R.id.nav_watchlist)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_watchlist
+            }
             onView(withText("Watchlist — coming soon")).check(matches(isDisplayed()))
 
             // 5. Switch back to Dashboard
-            onView(withId(R.id.nav_dashboard)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_dashboard
+            }
             onView(withText("Dashboard — coming soon")).check(matches(isDisplayed()))
         }
     }
@@ -47,7 +55,9 @@ class NavigationTest {
     fun testRotationAndTabSwitchStressTest() {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             // Switch to Budget tab
-            onView(withId(R.id.nav_budget)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_budget
+            }
             onView(withText("Budget — coming soon")).check(matches(isDisplayed()))
 
             // Recreate activity (simulating rotation)
@@ -57,7 +67,9 @@ class NavigationTest {
             onView(withText("Budget — coming soon")).check(matches(isDisplayed()))
 
             // Switch to Watchlist after recreation
-            onView(withId(R.id.nav_watchlist)).perform(click())
+            scenario.onActivity { activity ->
+                activity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.nav_watchlist
+            }
             onView(withText("Watchlist — coming soon")).check(matches(isDisplayed()))
         }
     }

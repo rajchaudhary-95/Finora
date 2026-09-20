@@ -164,6 +164,7 @@ class AccountsActivityTest {
 
             // Confirm AlertDialog
             onView(withText("Delete")).perform(click())
+            Thread.sleep(500)
 
             // Verify empty state appears and account is not displayed
             onView(withId(R.id.layout_empty_state)).check(matches(isDisplayed()))

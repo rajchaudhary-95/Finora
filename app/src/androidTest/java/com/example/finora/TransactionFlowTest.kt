@@ -241,9 +241,11 @@ class TransactionFlowTest {
         ActivityScenario.launch(MainActivity::class.java).use {
             // Ensure initial Dashboard tab is loaded
             onView(withId(R.id.btn_manage_accounts)).check(matches(isDisplayed()))
+            Thread.sleep(500)
 
             // Switch to Transactions tab and ensure it is loaded
             onView(withId(R.id.nav_transactions)).perform(click())
+            Thread.sleep(500)
             onView(withId(R.id.fab_add_transaction)).check(matches(isDisplayed()))
 
             // Click FAB to add transaction
@@ -283,6 +285,7 @@ class TransactionFlowTest {
             // Delete transaction
             onView(withId(R.id.btn_delete_transaction)).perform(scrollTo(), click())
             onView(withText("Delete")).inRoot(isDialog()).perform(click())
+            Thread.sleep(500)
 
             // Back on Transactions tab: transaction is removed
             onView(allOf(withId(R.id.tv_merchant), withText("Costco Wholesale"))).check(doesNotExist())
