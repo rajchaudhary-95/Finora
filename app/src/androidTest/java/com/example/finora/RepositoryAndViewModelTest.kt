@@ -100,7 +100,7 @@ class RepositoryAndViewModelTest {
         val viewModelStore = ViewModelStore()
 
         // 1. DashboardViewModel
-        val dashboardFactory = DashboardViewModel.Factory(netWorthRepo, transactionRepo)
+        val dashboardFactory = DashboardViewModel.Factory(netWorthRepo, transactionRepo, categoryRepo)
         val dashboardVm = ViewModelProvider(viewModelStore, dashboardFactory)[DashboardViewModel::class.java]
         assertNotNull(dashboardVm)
         assertNotNull(dashboardVm.netWorth)
@@ -123,11 +123,11 @@ class RepositoryAndViewModelTest {
         assertTrue(accountsVm.accounts.value.isEmpty())
 
         // 4. BudgetViewModel
-        val budgetFactory = BudgetViewModel.Factory(budgetRepo, transactionRepo)
+        val budgetFactory = BudgetViewModel.Factory(budgetRepo, transactionRepo, categoryRepo)
         val budgetVm = ViewModelProvider(viewModelStore, budgetFactory)[BudgetViewModel::class.java]
         assertNotNull(budgetVm)
-        assertNotNull(budgetVm.budgets)
-        assertTrue(budgetVm.budgets.value.isEmpty())
+        assertNotNull(budgetVm.budgetUiModels)
+        assertTrue(budgetVm.budgetUiModels.value.isEmpty())
 
         // 5. WatchlistViewModel
         val watchlistFactory = WatchlistViewModel.Factory(watchlistRepo, portfolioRepo)

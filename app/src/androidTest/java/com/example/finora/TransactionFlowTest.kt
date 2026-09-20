@@ -240,7 +240,7 @@ class TransactionFlowTest {
         // Launch MainActivity and switch to Transactions tab
         ActivityScenario.launch(MainActivity::class.java).use {
             // Ensure initial Dashboard tab is loaded
-            onView(withId(R.id.btn_manage_accounts)).check(matches(isDisplayed()))
+            onView(withId(R.id.btn_nav_accounts)).check(matches(isDisplayed()))
             Thread.sleep(500)
 
             // Switch to Transactions tab and ensure it is loaded
