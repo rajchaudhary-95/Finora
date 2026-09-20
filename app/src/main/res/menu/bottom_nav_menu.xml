@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:title="Dashboard"
+        android:icon="@drawable/ic_dashboard" />
+
+    <item
+        android:id="@+id/nav_transactions"
+        android:title="Transactions"
+        android:icon="@drawable/ic_transactions" />
+
+    <item
+        android:id="@+id/nav_budget"
+        android:title="Budget"
+        android:icon="@drawable/ic_budget" />
+
+    <item
+        android:id="@+id/nav_watchlist"
+        android:title="Watchlist"
+        android:icon="@drawable/ic_watchlist" />
+</menu>

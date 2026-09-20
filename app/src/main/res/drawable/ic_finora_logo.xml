@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Outer Shield / Diamond -->
+    <path
+        android:fillColor="#00C49A"
+        android:pathData="M48,8L84,28v40L48,88L12,68V28z"/>
+    <!-- Inner Dark Shield -->
+    <path
+        android:fillColor="#1A6B5A"
+        android:pathData="M48,16L76,32v32L48,80L20,64V32z"/>
+    <!-- Growth Chart & Currency Symbol Line -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,58l10,-14 8,8 14,-16v6h4V30H56v4h6l-12,14 -8,-8 -12,16z"/>
+</vector>
