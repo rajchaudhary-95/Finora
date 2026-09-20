@@ -19,9 +19,13 @@ class FinoraApp : Application() {
     val database: FinoraDatabase by lazy { FinoraDatabase.getInstance(this) }
 
     val accountRepository: AccountRepository by lazy { AccountRepository(database.accountDao()) }
-    val budgetRepository: BudgetRepository by lazy { BudgetRepository(database.budgetDao()) }
-    val stockRepository: StockRepository by lazy { StockRepository(database.watchlistDao(), database.portfolioDao()) }
+    val categoryRepository: CategoryRepository by lazy { CategoryRepository(database.categoryDao()) }
     val transactionRepository: TransactionRepository by lazy { TransactionRepository(database.transactionDao()) }
+    val budgetRepository: BudgetRepository by lazy { BudgetRepository(database.budgetDao()) }
+    val watchlistRepository: WatchlistRepository by lazy { WatchlistRepository(database.watchlistDao()) }
+    val portfolioRepository: PortfolioRepository by lazy { PortfolioRepository(database.portfolioDao()) }
+    val stockRepository: StockRepository by lazy { StockRepository(database.watchlistDao(), database.portfolioDao()) }
+    val netWorthRepository: NetWorthRepository by lazy { NetWorthRepository(database.accountDao()) }
 
     override fun onCreate() {
         super.onCreate()
