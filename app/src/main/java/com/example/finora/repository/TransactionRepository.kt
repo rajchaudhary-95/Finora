@@ -17,6 +17,7 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
     suspend fun delete(tx: Transaction) = transactionDao.delete(tx)
     suspend fun getById(id: Int): Transaction? = transactionDao.getById(id)
     fun getByAccount(accountId: Int): Flow<List<Transaction>> = transactionDao.getByAccount(accountId)
+    suspend fun getCountByAccount(accountId: Int): Int = transactionDao.getCountByAccount(accountId)
 
     fun getSpendingByCategory(month: String): Flow<List<CategorySpending>> =
         transactionDao.getSpendingByCategory(month)

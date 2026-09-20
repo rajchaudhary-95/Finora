@@ -21,6 +21,14 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.btnManageAccounts.setOnClickListener {
+            val intent = android.content.Intent(requireContext(), com.example.finora.ui.accounts.AccountsActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -46,4 +46,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_manage_accounts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:text="Manage Accounts"
+        android:textAllCaps="false"
+        android:textColor="@color/card_surface"
+        android:textSize="15sp"
+        app:backgroundTint="@color/primary_teal"
+        app:cornerRadius="12dp"
+        app:icon="@drawable/ic_account_bank"
+        app:iconTint="@color/card_surface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

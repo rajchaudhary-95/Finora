@@ -47,6 +47,21 @@
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Accounts Activity -->
+        <activity
+            android:name=".ui.accounts.AccountsActivity"
+            android:exported="false"
+            android:label="Accounts"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Add/Edit Account Activity -->
+        <activity
+            android:name=".ui.accounts.AddEditAccountActivity"
+            android:exported="false"
+            android:label="Account"
+            android:parentActivityName=".ui.accounts.AccountsActivity"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

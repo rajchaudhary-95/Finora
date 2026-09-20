@@ -10,6 +10,7 @@
     <!-- Surfaces & Backgrounds -->
     <color name="background_light">#F8F9FA</color>
     <color name="surface_card">#FFFFFF</color>
+    <color name="card_surface">#FFFFFF</color>
     <color name="nav_background">#FFFFFF</color>
 
     <!-- Financial Indicators -->

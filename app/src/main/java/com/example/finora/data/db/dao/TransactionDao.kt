@@ -24,6 +24,9 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE accountId = :accountId ORDER BY date DESC")
     fun getByAccount(accountId: Int): Flow<List<Transaction>>
 
+    @Query("SELECT COUNT(*) FROM transactions WHERE accountId = :accountId")
+    suspend fun getCountByAccount(accountId: Int): Int
+
     // Spending by category for a given YYYY-MM month — drives budget progress bars and spending charts
     @Query("""
         SELECT categoryId, SUM(amount) as total 

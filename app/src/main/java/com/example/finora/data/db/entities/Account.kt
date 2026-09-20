@@ -17,7 +17,10 @@ data class Account(
     val type: String,          // One of "CASH", "BANK", "CREDIT_CARD"
     val balance: Double = 0.0,
     val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    val accountType: AccountType
+        get() = AccountType.fromString(type)
+}
 
 enum class AccountType(val storageValue: String) {
     CASH("CASH"),
