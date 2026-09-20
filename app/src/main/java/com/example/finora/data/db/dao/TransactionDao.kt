@@ -36,6 +36,14 @@ interface TransactionDao {
     """)
     fun getSpendingByCategory(month: String): Flow<List<CategorySpending>>
 
+    @Query("""
+        SELECT categoryId, SUM(amount) as total 
+        FROM transactions 
+        WHERE strftime('%Y-%m', date/1000, 'unixepoch') = :month 
+        GROUP BY categoryId
+    """)
+    suspend fun getSpendingByCategoryOnce(month: String): List<CategorySpending>
+
     // Recurring candidates: grouped by merchant, rounded amount, and month
     @Query("""
         SELECT merchant, ROUND(amount, 0) as roundedAmount, 

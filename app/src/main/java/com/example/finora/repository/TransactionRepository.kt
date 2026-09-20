@@ -22,6 +22,9 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
     fun getSpendingByCategory(month: String): Flow<List<CategorySpending>> =
         transactionDao.getSpendingByCategory(month)
 
+    suspend fun getSpendingByCategoryOnce(month: String): List<CategorySpending> =
+        transactionDao.getSpendingByCategoryOnce(month)
+
     fun getRecurring(): Flow<List<Transaction>> = transactionDao.getRecurring()
 
     fun getGeotaggedTransactions(): Flow<List<Transaction>> =

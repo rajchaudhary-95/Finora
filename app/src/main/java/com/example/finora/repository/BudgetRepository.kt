@@ -11,6 +11,7 @@ class BudgetRepository(private val budgetDao: BudgetDao) {
     val allBudgets: Flow<List<Budget>> = budgetDao.getAll()
 
     fun getForMonth(month: String): Flow<List<Budget>> = budgetDao.getForMonth(month)
+    suspend fun getListForMonth(month: String): List<Budget> = budgetDao.getListForMonth(month)
     fun getByMonth(month: String): Flow<List<Budget>> = budgetDao.getByMonth(month)
 
     suspend fun insert(budget: Budget): Long = budgetDao.insert(budget)

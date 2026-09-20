@@ -84,6 +84,13 @@
             android:exported="false"
             android:label="Nearby Spending"
             android:parentActivityName=".MainActivity" />
+
+        <!-- Budget Setup Activity (Phase 9) -->
+        <activity
+            android:name=".ui.budget.BudgetSetupActivity"
+            android:exported="false"
+            android:label="Manage Budgets"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

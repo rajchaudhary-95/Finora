@@ -22,6 +22,9 @@ interface BudgetDao {
     fun getForMonth(month: String): Flow<List<Budget>>
 
     @Query("SELECT * FROM budgets WHERE month = :month")
+    suspend fun getListForMonth(month: String): List<Budget>
+
+    @Query("SELECT * FROM budgets WHERE month = :month")
     fun getByMonth(month: String): Flow<List<Budget>>
 
     @Query("SELECT * FROM budgets WHERE id = :id")
