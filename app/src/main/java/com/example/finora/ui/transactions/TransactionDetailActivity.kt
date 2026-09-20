@@ -2,6 +2,7 @@ package com.example.finora.ui.transactions
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -14,7 +15,9 @@ import com.example.finora.data.db.entities.Account
 import com.example.finora.data.db.entities.Category
 import com.example.finora.data.db.entities.Transaction
 import com.example.finora.databinding.ActivityTransactionDetailBinding
+import com.example.finora.util.ImageUtil
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -115,6 +118,24 @@ class TransactionDetailActivity : AppCompatActivity() {
         binding.ivDetailCategoryIcon.setImageResource(CategoryIconHelper.getIconForCategory(category))
         binding.tvDetailDate.text = fullDateFormat.format(Date(tx.date))
         binding.tvDetailNote.text = if (!tx.note.isNullOrBlank()) tx.note else "No notes provided"
+
+        // Receipt photo section: show full-size image (sensibly downscaled) when present, hide entirely when null
+        if (!tx.receiptImagePath.isNullOrBlank()) {
+            val file = File(tx.receiptImagePath)
+            if (file.exists() && file.length() > 0) {
+                val receiptBitmap = ImageUtil.decodeSampledBitmapFromFile(tx.receiptImagePath, 1080, 1080)
+                if (receiptBitmap != null) {
+                    binding.ivDetailReceiptImage.setImageBitmap(receiptBitmap)
+                    binding.layoutReceiptDetailSection.visibility = View.VISIBLE
+                } else {
+                    binding.layoutReceiptDetailSection.visibility = View.GONE
+                }
+            } else {
+                binding.layoutReceiptDetailSection.visibility = View.GONE
+            }
+        } else {
+            binding.layoutReceiptDetailSection.visibility = View.GONE
+        }
     }
 
     private fun confirmDelete() {

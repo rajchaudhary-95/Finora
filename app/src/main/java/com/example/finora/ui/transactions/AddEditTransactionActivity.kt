@@ -1,11 +1,18 @@
 package com.example.finora.ui.transactions
 
+import android.Manifest
 import android.app.DatePickerDialog
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,18 +21,23 @@ import com.example.finora.data.db.entities.Account
 import com.example.finora.data.db.entities.Category
 import com.example.finora.data.db.entities.Transaction
 import com.example.finora.databinding.ActivityAddEditTransactionBinding
+import com.example.finora.util.ImageUtil
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * Activity for adding or editing a transaction.
- * Supports date picker, account selection, category selection, and explicit Intent ID passing.
+ * Supports date picker, account selection, category selection, receipt photo capture, and explicit Intent ID passing.
  */
 class AddEditTransactionActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_TRANSACTION_ID = "EXTRA_TRANSACTION_ID"
+        private const val KEY_RECEIPT_IMAGE_PATH = "KEY_RECEIPT_IMAGE_PATH"
+        private const val KEY_PENDING_PHOTO_PATH = "KEY_PENDING_PHOTO_PATH"
     }
 
     private lateinit var binding: ActivityAddEditTransactionBinding
@@ -48,6 +60,46 @@ class AddEditTransactionActivity : AppCompatActivity() {
     private var selectedDateMillis: Long = System.currentTimeMillis()
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
 
+    private var currentReceiptImagePath: String? = null
+    private var pendingPhotoFile: File? = null
+
+    /**
+     * Camera permission contract.
+     * If denied, shows a Snackbar informing the user and allows saving without receipt.
+     */
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchCamera()
+        } else {
+            Snackbar.make(
+                binding.root,
+                "Camera permission is needed to scan receipts. You can still save this transaction without one.",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    /**
+     * TakePicture contract.
+     * Takes destination content URI and saves full-res photo directly to the designated file.
+     */
+    private val takePictureLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        val photoFile = pendingPhotoFile
+        if (success && photoFile != null && photoFile.exists() && photoFile.length() > 0) {
+            currentReceiptImagePath = photoFile.absolutePath
+            displayReceiptThumbnail(photoFile.absolutePath)
+        } else {
+            // Clean up 0-byte file if user cancelled camera
+            if (photoFile != null && photoFile.exists() && photoFile.length() == 0L) {
+                photoFile.delete()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddEditTransactionBinding.inflate(layoutInflater)
@@ -56,10 +108,25 @@ class AddEditTransactionActivity : AppCompatActivity() {
         currentTransactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, -1)
         val isEditMode = currentTransactionId != -1
 
+        savedInstanceState?.let { bundle ->
+            currentReceiptImagePath = bundle.getString(KEY_RECEIPT_IMAGE_PATH)
+            bundle.getString(KEY_PENDING_PHOTO_PATH)?.let { pendingPhotoFile = File(it) }
+        }
+
         setupToolbar(isEditMode)
         setupDatePicker()
+        setupReceiptCapture()
         setupSaveButton(isEditMode)
         observeFormDependencies(isEditMode)
+
+        // Restore receipt thumbnail if state had one
+        currentReceiptImagePath?.let { displayReceiptThumbnail(it) }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_RECEIPT_IMAGE_PATH, currentReceiptImagePath)
+        pendingPhotoFile?.let { outState.putString(KEY_PENDING_PHOTO_PATH, it.absolutePath) }
     }
 
     private fun setupToolbar(isEditMode: Boolean) {
@@ -151,6 +218,79 @@ class AddEditTransactionActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupReceiptCapture() {
+        binding.btnScanReceipt.setOnClickListener {
+            checkCameraPermissionAndLaunch()
+        }
+
+        binding.btnReplaceReceipt.setOnClickListener {
+            checkCameraPermissionAndLaunch()
+        }
+
+        binding.btnRemoveReceipt.setOnClickListener {
+            clearReceiptPreview()
+        }
+    }
+
+    private fun checkCameraPermissionAndLaunch() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            else -> {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun launchCamera() {
+        try {
+            val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            if (storageDir != null && !storageDir.exists()) {
+                storageDir.mkdirs()
+            }
+            val photoFile = File(storageDir, "receipt_${System.currentTimeMillis()}.jpg")
+            pendingPhotoFile = photoFile
+            val photoUri = FileProvider.getUriForFile(
+                this,
+                "${applicationContext.packageName}.fileprovider",
+                photoFile
+            )
+            takePictureLauncher.launch(photoUri)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Could not open camera: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun displayReceiptThumbnail(filePath: String) {
+        val file = File(filePath)
+        if (!file.exists() || file.length() == 0L) {
+            clearReceiptPreview()
+            return
+        }
+
+        // Downscale bitmap to avoid memory pressure (approx 200x200 px for thumbnail)
+        val thumbnailBitmap = ImageUtil.decodeSampledBitmapFromFile(filePath, 200, 200)
+        if (thumbnailBitmap != null) {
+            binding.ivReceiptThumbnail.setImageBitmap(thumbnailBitmap)
+            binding.tvReceiptFilename.text = file.name
+            binding.layoutReceiptPreview.visibility = View.VISIBLE
+            binding.btnScanReceipt.visibility = View.GONE
+        } else {
+            clearReceiptPreview()
+        }
+    }
+
+    private fun clearReceiptPreview() {
+        currentReceiptImagePath = null
+        binding.ivReceiptThumbnail.setImageDrawable(null)
+        binding.layoutReceiptPreview.visibility = View.GONE
+        binding.btnScanReceipt.visibility = View.VISIBLE
+    }
+
     private fun populateForm(tx: Transaction) {
         binding.etAmount.setText(String.format(Locale.US, "%.2f", tx.amount))
         binding.etMerchant.setText(tx.merchant)
@@ -169,6 +309,14 @@ class AddEditTransactionActivity : AppCompatActivity() {
         val categoryIndex = categoriesList.indexOfFirst { it.id == tx.categoryId }
         if (categoryIndex != -1) {
             binding.spinnerCategory.setSelection(categoryIndex)
+        }
+
+        // Display existing receipt thumbnail if present
+        tx.receiptImagePath?.let { path ->
+            if (File(path).exists()) {
+                currentReceiptImagePath = path
+                displayReceiptThumbnail(path)
+            }
         }
     }
 
@@ -218,6 +366,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         merchant = merchant,
                         note = note,
                         date = selectedDateMillis,
+                        receiptImagePath = currentReceiptImagePath,
                         updatedAt = System.currentTimeMillis()
                     )
                     viewModel.updateTransaction(updatedTransaction, existingTransaction!!)
@@ -229,6 +378,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                         merchant = merchant,
                         note = note,
                         date = selectedDateMillis,
+                        receiptImagePath = currentReceiptImagePath,
                         createdAt = System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis()
                     )

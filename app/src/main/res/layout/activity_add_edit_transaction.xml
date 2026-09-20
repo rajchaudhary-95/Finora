@@ -158,27 +158,126 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- ======================================================== -->
-            <!-- Placeholder Section: Receipt Capture (Phase 6)            -->
+            <!-- Receipt Section (Scan & Preview)                          -->
             <!-- ======================================================== -->
-            <LinearLayout
-                android:id="@+id/layout_receipt_placeholder"
+            <TextView
+                android:id="@+id/tv_receipt_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Receipt Photo"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
+
+            <!-- Empty state: Button to scan receipt -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_scan_receipt"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="8dp"
+                android:text="Scan Receipt"
+                android:textColor="@color/primary_teal"
+                app:icon="@drawable/ic_camera_placeholder"
+                app:iconTint="@color/primary_teal"
+                app:strokeColor="@color/primary_teal" />
+
+            <!-- Attached state: Preview layout with thumbnail, replace, and remove -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layout_receipt_preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/divider_color"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="@color/surface_card"
+                tools:visibility="visible">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_scan_receipt_placeholder"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:enabled="false"
-                    android:text="Scan Receipt (Coming in Phase 6)"
-                    android:textColor="@color/text_muted"
-                    app:icon="@drawable/ic_camera_placeholder"
-                    app:iconTint="@color/text_muted"
-                    app:strokeColor="@color/divider_color" />
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="12dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/divider_color"
+                        app:strokeWidth="1dp">
+
+                        <ImageView
+                            android:id="@+id/iv_receipt_thumbnail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="Receipt thumbnail" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <TextView
+                            android:id="@+id/tv_receipt_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Receipt Attached"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_receipt_filename"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:ellipsize="middle"
+                            android:singleLine="true"
+                            tools:text="receipt_123456.jpg" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="6dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_replace_receipt"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Replace"
+                                android:textColor="@color/primary_teal"
+                                android:textSize="12sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_remove_receipt"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Remove"
+                                android:textColor="@color/expense_red"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ======================================================== -->
             <!-- Placeholder Section: Location Tagging (Phase 7)           -->

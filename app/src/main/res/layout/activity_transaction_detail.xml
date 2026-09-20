@@ -248,60 +248,54 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ======================================================== -->
-            <!-- Placeholder Section: Receipt (Phase 6)                    -->
+            <!-- Receipt Section (Phase 6)                                -->
             <!-- ======================================================== -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Receipt"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/layout_receipt_detail_placeholder"
+            <LinearLayout
+                android:id="@+id/layout_receipt_detail_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/divider_color"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@color/surface_card">
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_detail_receipt_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Receipt"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_detail_receipt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_marginTop="6dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/divider_color"
+                    app:strokeWidth="1dp"
+                    app:cardBackgroundColor="@color/surface_card">
 
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_camera_placeholder"
-                        app:tint="@color/text_muted"
-                        android:contentDescription="Receipt placeholder" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="No receipt attached"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_secondary" />
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Receipt scan &amp; photo storage coming in Phase 6"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_muted" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <ImageView
+                            android:id="@+id/iv_detail_receipt_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="360dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="Receipt photo" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <!-- ======================================================== -->
             <!-- Placeholder Section: Location (Phase 7)                   -->
