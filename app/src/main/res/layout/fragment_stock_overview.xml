@@ -250,6 +250,17 @@
                                 tools:textColor="@color/income_green" />
                         </LinearLayout>
                     </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_edit_portfolio"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Edit Position"
+                        android:textColor="@color/primary_teal"
+                        app:cornerRadius="10dp"
+                        app:strokeColor="@color/primary_teal" />
                 </LinearLayout>
 
                 <!-- Not held state -->
@@ -278,6 +289,16 @@
                         android:textAlignment="center"
                         android:textColor="@color/text_muted"
                         android:textSize="13sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_add_to_portfolio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/primary_teal"
+                        android:text="+ Record Holding"
+                        android:textColor="@color/white"
+                        app:cornerRadius="10dp" />
                 </LinearLayout>
 
             </LinearLayout>

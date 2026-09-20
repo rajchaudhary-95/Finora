@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -15,7 +16,10 @@ import com.example.finora.FinoraApp
 import com.example.finora.R
 import com.example.finora.data.db.entities.PortfolioHolding
 import com.example.finora.data.db.entities.WatchlistStock
+import com.example.finora.databinding.DialogAddEditHoldingBinding
 import com.example.finora.databinding.FragmentStockOverviewBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Locale
@@ -34,6 +38,7 @@ class StockOverviewFragment : Fragment() {
     }
 
     private var symbol: String = ""
+    private var currentHolding: PortfolioHolding? = null
 
     companion object {
         private const val ARG_SYMBOL = "ARG_SYMBOL"
@@ -71,6 +76,14 @@ class StockOverviewFragment : Fragment() {
             viewModel.fetchQuote(symbol, forceRefresh = true)
         }
 
+        binding.btnAddToPortfolio.setOnClickListener {
+            showAddEditHoldingDialog(currentHolding)
+        }
+
+        binding.btnEditPortfolio.setOnClickListener {
+            showAddEditHoldingDialog(currentHolding)
+        }
+
         observeData()
     }
 
@@ -90,6 +103,7 @@ class StockOverviewFragment : Fragment() {
 
                 launch {
                     viewModel.getHoldingForSymbol(symbol).collect { holding ->
+                        currentHolding = holding
                         val currentStock = viewModel.watchlist.value.firstOrNull {
                             it.symbol.equals(symbol, ignoreCase = true)
                         }
@@ -168,6 +182,83 @@ class StockOverviewFragment : Fragment() {
             binding.layoutHoldingDetails.visibility = View.GONE
             binding.layoutNotHeld.visibility = View.VISIBLE
         }
+    }
+
+    private fun showAddEditHoldingDialog(existingHolding: PortfolioHolding?) {
+        val dialog = BottomSheetDialog(requireContext())
+        val dialogBinding = DialogAddEditHoldingBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        val cleanSymbol = symbol.uppercase().trim()
+        dialogBinding.tvDialogTitle.text = if (existingHolding != null) {
+            "Edit Position ($cleanSymbol)"
+        } else {
+            "Record Position ($cleanSymbol)"
+        }
+
+        if (existingHolding != null) {
+            dialogBinding.etSharesOwned.setText(existingHolding.sharesOwned.toString())
+            dialogBinding.etAvgBuyPrice.setText(existingHolding.avgBuyPrice.toString())
+            dialogBinding.btnDeleteHolding.visibility = View.VISIBLE
+
+            dialogBinding.btnDeleteHolding.setOnClickListener {
+                viewModel.deleteHolding(existingHolding)
+                dialog.dismiss()
+                Snackbar.make(binding.root, "Position for $cleanSymbol deleted", Snackbar.LENGTH_SHORT).show()
+            }
+        } else {
+            dialogBinding.btnDeleteHolding.visibility = View.GONE
+        }
+
+        val updateCostPreview = {
+            val shares = dialogBinding.etSharesOwned.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val price = dialogBinding.etAvgBuyPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val totalCost = shares * price
+            dialogBinding.tvHoldingCostPreview.text = String.format(
+                Locale.US,
+                "Total Cost Basis: $%,.2f",
+                totalCost
+            )
+        }
+
+        dialogBinding.etSharesOwned.doAfterTextChanged { updateCostPreview() }
+        dialogBinding.etAvgBuyPrice.doAfterTextChanged { updateCostPreview() }
+        updateCostPreview()
+
+        dialogBinding.btnCancelHolding.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnSaveHolding.setOnClickListener {
+            val shares = dialogBinding.etSharesOwned.text?.toString()?.toDoubleOrNull()
+            val avgPrice = dialogBinding.etAvgBuyPrice.text?.toString()?.toDoubleOrNull()
+
+            if (shares == null || shares <= 0.0) {
+                dialogBinding.tilSharesOwned.error = "Enter valid shares (> 0)"
+                return@setOnClickListener
+            }
+            dialogBinding.tilSharesOwned.error = null
+
+            if (avgPrice == null || avgPrice < 0.0) {
+                dialogBinding.tilAvgBuyPrice.error = "Enter valid average price"
+                return@setOnClickListener
+            }
+            dialogBinding.tilAvgBuyPrice.error = null
+
+            val holdingToSave = PortfolioHolding(
+                id = existingHolding?.id ?: 0,
+                symbol = cleanSymbol,
+                sharesOwned = shares,
+                avgBuyPrice = avgPrice
+            )
+
+            viewModel.saveHolding(holdingToSave)
+            dialog.dismiss()
+            val message = if (existingHolding != null) "Position updated" else "Position recorded in portfolio"
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

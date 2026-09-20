@@ -12,104 +12,304 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:gravity="center_horizontal">
+        android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/img_placeholder"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:src="@drawable/ic_dashboard"
-            app:tint="@color/primary_teal"
-            android:contentDescription="Dashboard Icon" />
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
+        <!-- Net Worth Hero Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_net_worth"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Dashboard"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            app:cardCornerRadius="18dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:strokeColor="@color/divider_color"
+            app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/tv_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Net worth tracking, spending charts &amp; recurring charges"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:textAlignment="center" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TOTAL NET WORTH"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.08"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_net_worth_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/primary_teal"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    tools:text="$259,300.00" />
+
+                <TextView
+                    android:id="@+id/tv_net_worth_breakdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Cash: $44,300.00 • Investments: $215,000.00" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="16dp"
+                    android:background="@color/divider_color" />
+
+                <!-- Navigation Quick Actions -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_nav_accounts"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="Accounts"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_account_bank"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/primary_teal"
+                        app:strokeColor="@color/divider_color" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_nav_watchlist"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="4dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="Watchlist"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_watchlist"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/primary_teal"
+                        app:strokeColor="@color/divider_color" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_nav_nearby"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="Nearby"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_location_placeholder"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/primary_teal"
+                        app:strokeColor="@color/divider_color" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Spending by Category Pie Chart Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_spending_chart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:strokeColor="@color/divider_color"
+            app:strokeWidth="1dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_manage_accounts"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:fontFamily="sans-serif-medium"
-                android:paddingVertical="10dp"
-                android:text="Accounts"
-                android:textAllCaps="false"
-                android:textColor="@color/card_surface"
-                android:textSize="14sp"
-                app:backgroundTint="@color/primary_teal"
-                app:cornerRadius="10dp"
-                app:icon="@drawable/ic_account_bank"
-                app:iconTint="@color/card_surface" />
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_nearby_spending"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Spending by Category"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_spending_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            tools:text="September 2026" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_total_month_spent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="$1,842.50" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_marginTop="12dp">
+
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/pie_chart_spending"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/tv_spending_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="No expenses recorded for this month yet"
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Budgets at a Glance Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_budgets_glance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_card"
+            app:strokeColor="@color/divider_color"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:fontFamily="sans-serif-medium"
-                android:paddingVertical="10dp"
-                android:text="Nearby"
-                android:textAllCaps="false"
-                android:textColor="@color/primary_teal"
-                android:textSize="14sp"
-                app:strokeColor="@color/primary_teal"
-                app:cornerRadius="10dp"
-                app:icon="@drawable/ic_location_placeholder"
-                app:iconTint="@color/primary_teal" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Budgets at a Glance"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_manage_budgets_glance"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="Manage"
+                        android:textColor="@color/primary_teal"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="High-risk and active monthly budgets"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <!-- Container where miniature budget items are inflated -->
+                <LinearLayout
+                    android:id="@+id/layout_budgets_glance_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/tv_budgets_glance_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:paddingVertical="8dp"
+                    android:text="No budgets set up yet.\nTap 'Manage' to set your monthly spending limits."
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Recurring Charges Section -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_recurring_charges"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface_card"
             app:strokeColor="@color/divider_color"
-            app:strokeWidth="1dp"
-            app:cardBackgroundColor="@color/surface_card">
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/tv_recurring_header"
@@ -117,16 +317,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Recurring Charges"
+                        android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_recurring_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:textColor="@color/primary_teal"
+                        android:textSize="12sp"
                         android:textStyle="bold"
                         tools:text="3 active" />
                 </LinearLayout>
@@ -137,8 +337,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Auto-detected repeating expenses across past 3 months"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_recurring_transactions"
@@ -146,8 +346,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item_recurring_transaction"
-                    tools:itemCount="2" />
+                    tools:itemCount="2"
+                    tools:listitem="@layout/item_recurring_transaction" />
 
                 <TextView
                     android:id="@+id/tv_recurring_empty"
@@ -155,10 +355,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:gravity="center"
+                    android:paddingVertical="12dp"
                     android:text="No recurring charges detected yet.\nCharges appearing in 2+ months will show here automatically."
-                    android:textSize="13sp"
                     android:textColor="@color/text_muted"
-                    android:paddingVertical="12dp" />
+                    android:textSize="13sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -179,6 +179,12 @@ class WatchlistViewModel(
         }
     }
 
+    fun deleteHolding(holding: PortfolioHolding) {
+        viewModelScope.launch {
+            portfolioRepository.delete(holding)
+        }
+    }
+
     class Factory(
         private val watchlistRepository: WatchlistRepository,
         private val portfolioRepository: PortfolioRepository
