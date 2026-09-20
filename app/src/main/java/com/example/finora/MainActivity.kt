@@ -75,6 +75,8 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        setSupportActionBar(binding.topAppBar)
+
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             if (menuItem.itemId == R.id.action_settings) {
                 startActivity(android.content.Intent(this, com.example.finora.ui.settings.SettingsActivity::class.java))
@@ -83,6 +85,19 @@ class MainActivity : AppCompatActivity() {
                 false
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_top_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        if (item.itemId == R.id.action_settings) {
+            startActivity(android.content.Intent(this, com.example.finora.ui.settings.SettingsActivity::class.java))
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /**
