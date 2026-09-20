@@ -62,6 +62,21 @@
             android:label="Account"
             android:parentActivityName=".ui.accounts.AccountsActivity"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Add/Edit Transaction Activity -->
+        <activity
+            android:name=".ui.transactions.AddEditTransactionActivity"
+            android:exported="false"
+            android:label="Transaction"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Transaction Detail Activity -->
+        <activity
+            android:name=".ui.transactions.TransactionDetailActivity"
+            android:exported="false"
+            android:label="Transaction Details"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

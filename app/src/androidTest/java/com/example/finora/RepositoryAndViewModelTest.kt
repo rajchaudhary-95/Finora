@@ -29,6 +29,7 @@ class RepositoryAndViewModelTest {
     private lateinit var db: FinoraDatabase
     private lateinit var accountRepo: AccountRepository
     private lateinit var transactionRepo: TransactionRepository
+    private lateinit var categoryRepo: CategoryRepository
     private lateinit var budgetRepo: BudgetRepository
     private lateinit var watchlistRepo: WatchlistRepository
     private lateinit var portfolioRepo: PortfolioRepository
@@ -43,6 +44,7 @@ class RepositoryAndViewModelTest {
 
         accountRepo = AccountRepository(db.accountDao())
         transactionRepo = TransactionRepository(db.transactionDao())
+        categoryRepo = CategoryRepository(db.categoryDao())
         budgetRepo = BudgetRepository(db.budgetDao())
         watchlistRepo = WatchlistRepository(db.watchlistDao())
         portfolioRepo = PortfolioRepository(db.portfolioDao())
@@ -106,7 +108,7 @@ class RepositoryAndViewModelTest {
         assertEquals(0.0, dashboardVm.netWorth.value, 0.001)
 
         // 2. TransactionsViewModel
-        val transactionsFactory = TransactionsViewModel.Factory(transactionRepo, accountRepo)
+        val transactionsFactory = TransactionsViewModel.Factory(transactionRepo, accountRepo, categoryRepo)
         val transactionsVm = ViewModelProvider(viewModelStore, transactionsFactory)[TransactionsViewModel::class.java]
         assertNotNull(transactionsVm)
         assertNotNull(transactionsVm.transactions)

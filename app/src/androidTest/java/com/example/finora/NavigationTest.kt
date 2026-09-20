@@ -23,7 +23,7 @@ class NavigationTest {
 
             // 2. Click Transactions tab
             onView(withId(R.id.nav_transactions)).perform(click())
-            onView(withText("Transactions — coming soon")).check(matches(isDisplayed()))
+            onView(withId(R.id.fab_add_transaction)).check(matches(isDisplayed()))
 
             // 3. Click Budget tab
             onView(withId(R.id.nav_budget)).perform(click())

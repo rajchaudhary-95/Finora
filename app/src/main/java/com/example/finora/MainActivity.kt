@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             tx.commit()
+            supportFragmentManager.executePendingTransactions()
         }
 
         val targetMenuId = when (activeFragmentTag) {

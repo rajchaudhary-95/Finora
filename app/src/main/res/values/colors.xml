@@ -5,6 +5,7 @@
     <color name="primary_teal_dark">#0F4A3D</color>
     <color name="primary_teal_light">#E0F2EE</color>
     <color name="mint_accent">#00C49A</color>
+    <color name="accent_mint">#00C49A</color>
     <color name="mint_accent_light">#E6F9F5</color>
 
     <!-- Surfaces & Backgrounds -->
