@@ -93,14 +93,14 @@ class SettingsAndShareTest {
         )
 
         assertTrue(report.contains("Finora Financial Summary — September 2026"))
-        assertTrue(report.contains("Total Net Worth: $15,250.50"))
-        assertTrue(report.contains("Cash & Bank: $10,000.00"))
-        assertTrue(report.contains("Investments: $5,250.50"))
-        assertTrue(report.contains("Total Spent this Month: $950.00"))
+        assertTrue(report.contains("Total Net Worth: ₹15,250.50"))
+        assertTrue(report.contains("Cash & Bank: ₹10,000.00"))
+        assertTrue(report.contains("Investments: ₹5,250.50"))
+        assertTrue(report.contains("Total Spent this Month: ₹950.00"))
         // Check top 3 categories are listed
-        assertTrue(report.contains("1. Food & Dining: $450.00 (47.4%)"))
-        assertTrue(report.contains("2. Groceries: $300.00 (31.6%)"))
-        assertTrue(report.contains("3. Transport: $150.00 (15.8%)"))
+        assertTrue(report.contains("1. Food & Dining: ₹450.00 (47.4%)"))
+        assertTrue(report.contains("2. Groceries: ₹300.00 (31.6%)"))
+        assertTrue(report.contains("3. Transport: ₹150.00 (15.8%)"))
         // Check 4th category is NOT in top 3
         assertFalse(report.contains("4. Entertainment"))
 
@@ -122,7 +122,7 @@ class SettingsAndShareTest {
             budgets = emptyList()
         )
 
-        assertTrue(report.contains("Total Net Worth: $0.00"))
+        assertTrue(report.contains("Total Net Worth: ₹0.00"))
         assertTrue(report.contains("No expenses recorded yet this month."))
         assertTrue(report.contains("No budgets configured for this month."))
     }

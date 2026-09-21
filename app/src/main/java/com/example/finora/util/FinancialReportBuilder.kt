@@ -77,10 +77,6 @@ object FinancialReportBuilder {
     }
 
     private fun formatCurrency(amount: Double): String {
-        return if (amount >= 0.0) {
-            String.format(Locale.US, "$%,.2f", amount)
-        } else {
-            String.format(Locale.US, "-$%,.2f", Math.abs(amount))
-        }
+        return CurrencyFormatter.format(amount)
     }
 }

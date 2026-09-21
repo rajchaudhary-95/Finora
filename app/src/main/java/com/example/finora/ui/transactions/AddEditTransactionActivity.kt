@@ -376,7 +376,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 launch {
                     viewModel.accounts.collect { accounts ->
                         accountsList = accounts
-                        val accountNames = accounts.map { "${it.name} ($${String.format(Locale.US, "%.2f", it.balance)})" }
+                        val accountNames = accounts.map { "${it.name} (${com.example.finora.util.CurrencyFormatter.format(it.balance)})" }
                         val adapter = ArrayAdapter(this@AddEditTransactionActivity, android.R.layout.simple_spinner_item, accountNames).apply {
                             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         }

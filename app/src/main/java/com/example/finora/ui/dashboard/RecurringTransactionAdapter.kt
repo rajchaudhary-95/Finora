@@ -30,7 +30,7 @@ class RecurringTransactionAdapter : ListAdapter<Transaction, RecurringTransactio
     inner class ViewHolder(private val binding: ItemRecurringTransactionBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Transaction) {
             binding.tvRecurringMerchant.text = item.merchant
-            binding.tvRecurringAmount.text = String.format(Locale.US, "$%,.2f", item.amount)
+            binding.tvRecurringAmount.text = com.example.finora.util.CurrencyFormatter.format(item.amount)
         }
     }
 

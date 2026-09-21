@@ -5,11 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/background_light">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -60,7 +62,7 @@
                         android:textSize="32sp"
                         android:textStyle="bold"
                         android:textColor="@color/expense_red"
-                        tools:text="-$45.20" />
+                        tools:text="-₹45.20" />
 
                     <TextView
                         android:id="@+id/tv_detail_merchant"
@@ -381,6 +383,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="44dp"
                             android:layout_marginTop="12dp"
+                            android:singleLine="true"
+                            android:maxLines="1"
                             android:text="Open in Maps"
                             android:textColor="@color/primary_teal"
                             app:icon="@drawable/ic_location_placeholder"
@@ -398,6 +402,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="24dp"
+                android:singleLine="true"
+                android:maxLines="1"
                 android:text="Edit Transaction"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -413,6 +419,8 @@
                 android:layout_height="52dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="24dp"
+                android:singleLine="true"
+                android:maxLines="1"
                 android:text="Delete Transaction"
                 android:textSize="16sp"
                 android:textStyle="bold"

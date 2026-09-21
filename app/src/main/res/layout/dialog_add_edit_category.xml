@@ -79,6 +79,8 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:maxLines="1"
             android:text="Cancel"
             android:textColor="@color/text_secondary" />
 
@@ -87,6 +89,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:singleLine="true"
+            android:maxLines="1"
             android:backgroundTint="@color/primary_teal"
             android:text="Save"
             android:textColor="@color/white" />

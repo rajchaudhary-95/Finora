@@ -44,16 +44,11 @@ class BudgetAdapter(
             binding.tvCategoryName.text = item.categoryName
             binding.ivCategoryIcon.setImageResource(CategoryIconHelper.getIconForCategory(item.category))
 
-            binding.tvSpentVsLimit.text = String.format(
-                Locale.US,
-                "$%,.2f spent of $%,.2f",
-                item.spentSoFar,
-                item.effectiveLimit
-            )
+            binding.tvSpentVsLimit.text = "${com.example.finora.util.CurrencyFormatter.format(item.spentSoFar)} spent of ${com.example.finora.util.CurrencyFormatter.format(item.effectiveLimit)}"
 
             if (item.rolloverAmount > 0) {
                 binding.tvRolloverBadge.visibility = View.VISIBLE
-                binding.tvRolloverBadge.text = String.format(Locale.US, "+$%,.0f rollover", item.rolloverAmount)
+                binding.tvRolloverBadge.text = "+${com.example.finora.util.CurrencyFormatter.format(item.rolloverAmount)} rollover"
             } else if (item.budget.rolloverEnabled) {
                 binding.tvRolloverBadge.visibility = View.VISIBLE
                 binding.tvRolloverBadge.text = "Rollover ON"
@@ -69,19 +64,19 @@ class BudgetAdapter(
                     val color = ContextCompat.getColor(context, R.color.income_green)
                     binding.progressBudget.progressTintList = ColorStateList.valueOf(color)
                     binding.tvRemainingAmount.setTextColor(color)
-                    binding.tvRemainingAmount.text = String.format(Locale.US, "$%,.2f left", item.remaining)
+                    binding.tvRemainingAmount.text = "${com.example.finora.util.CurrencyFormatter.format(item.remaining)} left"
                 }
                 BudgetStatus.AT_RISK -> {
                     val color = ContextCompat.getColor(context, R.color.warning_amber)
                     binding.progressBudget.progressTintList = ColorStateList.valueOf(color)
                     binding.tvRemainingAmount.setTextColor(color)
-                    binding.tvRemainingAmount.text = String.format(Locale.US, "$%,.2f left", item.remaining)
+                    binding.tvRemainingAmount.text = "${com.example.finora.util.CurrencyFormatter.format(item.remaining)} left"
                 }
                 BudgetStatus.OVER -> {
                     val color = ContextCompat.getColor(context, R.color.expense_red)
                     binding.progressBudget.progressTintList = ColorStateList.valueOf(color)
                     binding.tvRemainingAmount.setTextColor(color)
-                    binding.tvRemainingAmount.text = String.format(Locale.US, "$%,.2f over", Math.abs(item.remaining))
+                    binding.tvRemainingAmount.text = "${com.example.finora.util.CurrencyFormatter.format(kotlin.math.abs(item.remaining))} over"
                 }
             }
 

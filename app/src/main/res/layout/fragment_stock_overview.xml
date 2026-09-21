@@ -75,7 +75,7 @@
                         android:textColor="@color/text_primary"
                         android:textSize="32sp"
                         android:textStyle="bold"
-                        tools:text="$261.74" />
+                        tools:text="₹261.74" />
 
                     <TextView
                         android:id="@+id/tv_detail_change"
@@ -187,7 +187,7 @@
                                 android:textColor="@color/text_primary"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                tools:text="$215.00" />
+                                tools:text="₹215.00" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -223,7 +223,7 @@
                                 android:textColor="@color/text_primary"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                tools:text="$2,617.40" />
+                                tools:text="₹2,617.40" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -246,7 +246,7 @@
                                 android:layout_marginTop="2dp"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                tools:text="+$467.40 (+21.7%)"
+                                tools:text="+₹467.40 (+21.7%)"
                                 tools:textColor="@color/income_green" />
                         </LinearLayout>
                     </LinearLayout>
@@ -257,6 +257,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:text="Edit Position"
                         android:textColor="@color/primary_teal"
                         app:cornerRadius="10dp"
@@ -295,6 +297,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:backgroundTint="@color/primary_teal"
                         android:text="+ Record Holding"
                         android:textColor="@color/white"
@@ -311,6 +315,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:singleLine="true"
+            android:maxLines="1"
             android:text="Refresh Live Quote"
             android:textColor="@color/primary_teal"
             app:cornerRadius="12dp"

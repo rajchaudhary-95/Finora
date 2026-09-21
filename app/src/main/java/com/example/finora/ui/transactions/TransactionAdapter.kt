@@ -52,10 +52,10 @@ class TransactionAdapter(
             binding.ivCategoryIcon.setImageResource(item.categoryIconRes)
 
             if (item.isIncome) {
-                binding.tvAmount.text = String.format(Locale.US, "+$%,.2f", item.transaction.amount)
+                binding.tvAmount.text = "+${com.example.finora.util.CurrencyFormatter.format(item.transaction.amount)}"
                 binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.income_green))
             } else {
-                binding.tvAmount.text = String.format(Locale.US, "-$%,.2f", item.transaction.amount)
+                binding.tvAmount.text = "-${com.example.finora.util.CurrencyFormatter.format(item.transaction.amount)}"
                 binding.tvAmount.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
             }
 

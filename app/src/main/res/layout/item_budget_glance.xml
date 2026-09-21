@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
-            tools:text="$470.00 of $500.00" />
+            tools:text="₹470.00 of ₹500.00" />
     </LinearLayout>
 
     <ProgressBar

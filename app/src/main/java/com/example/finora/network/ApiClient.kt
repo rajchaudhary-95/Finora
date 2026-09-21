@@ -1,6 +1,7 @@
 package com.example.finora.network
 
 import com.example.finora.BuildConfig
+import com.example.finora.util.ApiKeyStore
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -24,22 +25,26 @@ object ApiClient {
         }
     }
 
-    private fun createOkHttpClient(apiKey: String): OkHttpClient {
+    private fun createOkHttpClient(keyProvider: () -> String): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(FinnhubAuthInterceptor(apiKey))
+            .addInterceptor(FinnhubAuthInterceptor(keyProvider))
             .addInterceptor(loggingInterceptor)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .build()
     }
 
-    fun createFinnhubService(apiKey: String = BuildConfig.FINNHUB_API_KEY): FinnhubApiService {
-        val client = createOkHttpClient(apiKey)
+    fun createFinnhubService(apiKeyProvider: () -> String = { ApiKeyStore.getApiKey() }): FinnhubApiService {
+        val client = createOkHttpClient(apiKeyProvider)
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(FinnhubApiService::class.java)
+    }
+
+    fun createFinnhubService(staticApiKey: String): FinnhubApiService {
+        return createFinnhubService { staticApiKey }
     }
 }

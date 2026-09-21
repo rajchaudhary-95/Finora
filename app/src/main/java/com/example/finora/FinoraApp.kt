@@ -41,6 +41,7 @@ class FinoraApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        com.example.finora.util.ApiKeyStore.init(this)
         // Ensure database is opened and default categories are seeded on first launch
         applicationScope.launch {
             database.openHelper.writableDatabase

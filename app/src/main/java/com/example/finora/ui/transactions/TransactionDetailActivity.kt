@@ -103,12 +103,12 @@ class TransactionDetailActivity : AppCompatActivity() {
         val isIncome = category?.type?.equals("INCOME", ignoreCase = true) == true
 
         if (isIncome) {
-            binding.tvDetailAmount.text = String.format(Locale.US, "+$%,.2f", tx.amount)
+            binding.tvDetailAmount.text = "+${com.example.finora.util.CurrencyFormatter.format(tx.amount)}"
             binding.tvDetailAmount.setTextColor(ContextCompat.getColor(this, R.color.income_green))
             binding.tvDetailTypeBadge.text = "INCOME"
             binding.tvDetailTypeBadge.setTextColor(ContextCompat.getColor(this, R.color.income_green))
         } else {
-            binding.tvDetailAmount.text = String.format(Locale.US, "-$%,.2f", tx.amount)
+            binding.tvDetailAmount.text = "-${com.example.finora.util.CurrencyFormatter.format(tx.amount)}"
             binding.tvDetailAmount.setTextColor(ContextCompat.getColor(this, R.color.expense_red))
             binding.tvDetailTypeBadge.text = "EXPENSE"
             binding.tvDetailTypeBadge.setTextColor(ContextCompat.getColor(this, R.color.expense_red))

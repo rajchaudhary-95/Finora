@@ -50,5 +50,5 @@
         android:textSize="15sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
-        tools:text="$15.99" />
+        tools:text="₹15.99" />
 </LinearLayout>

@@ -22,23 +22,27 @@
 
             <TextView
                 android:id="@+id/tv_header_watchlist_title"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:text="Watchlist"
                 android:textColor="@color/text_primary"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/btn_manage_watchlist"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_header_watchlist_subtitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
+                android:layout_marginEnd="8dp"
                 android:text="Real-time Finnhub market quotes"
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"
+                app:layout_constraintEnd_toStartOf="@id/btn_manage_watchlist"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_header_watchlist_title" />
 
@@ -47,6 +51,13 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="38dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                app:iconPadding="4dp"
+                android:singleLine="true"
+                android:maxLines="1"
                 android:text="Search &amp; Add"
                 android:textColor="@color/primary_teal"
                 android:textSize="12sp"
@@ -122,6 +133,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:singleLine="true"
+                android:maxLines="1"
                 android:backgroundTint="@color/primary_teal"
                 android:text="Search &amp; Add Stocks"
                 android:textColor="@color/white"

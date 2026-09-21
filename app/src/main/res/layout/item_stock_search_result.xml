@@ -66,6 +66,8 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:paddingHorizontal="12dp"
+            android:singleLine="true"
+            android:maxLines="1"
             android:text="+ Add"
             android:textColor="@color/primary_teal"
             android:textSize="12sp"

@@ -64,7 +64,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="$261.74" />
+            tools:text="₹261.74" />
 
         <TextView
             android:id="@+id/tv_stock_change"

@@ -103,7 +103,7 @@ class StockChartFragment : Fragment() {
         leftAxis.gridColor = ContextCompat.getColor(requireContext(), R.color.divider_color)
         leftAxis.valueFormatter = object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
-                return String.format(Locale.US, "$%.1f", value)
+                return com.example.finora.util.CurrencyFormatter.formatAxis(value)
             }
         }
 

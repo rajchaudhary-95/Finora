@@ -24,6 +24,8 @@ import com.example.finora.data.db.entities.CategoryType
 import com.example.finora.databinding.ActivitySettingsBinding
 import com.example.finora.databinding.DialogAddEditCategoryBinding
 import com.example.finora.databinding.ItemCategorySettingBinding
+import com.example.finora.network.ApiClient
+import com.example.finora.util.ApiKeyStore
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -50,10 +52,36 @@ class SettingsActivity : AppCompatActivity() {
         prefs = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE)
 
         setupToolbar()
+        setupUserProfile()
         setupCategoryList()
         setupBudgetPreferences()
+        setupFinnhubApiKey()
         setupAboutInfo()
         observeCategories()
+    }
+
+    private fun setupUserProfile() {
+        val sessionManager = com.example.finora.util.UserSessionManager.getInstance(this)
+        val name = sessionManager.getCurrentUserName()
+        val email = sessionManager.getCurrentUserEmail()
+
+        binding.tvUserName.text = if (name.isNotBlank()) name else "Finora User"
+        binding.tvUserEmail.text = if (email.isNotBlank()) email else "Logged In"
+
+        binding.btnLogout.setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Log Out")
+                .setMessage("Are you sure you want to log out of your Finora account?")
+                .setPositiveButton("Log Out") { _, _ ->
+                    sessionManager.clearSession()
+                    val intent = android.content.Intent(this, com.example.finora.ui.auth.LoginActivity::class.java)
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
     }
 
     private fun setupToolbar() {
@@ -90,6 +118,55 @@ class SettingsActivity : AppCompatActivity() {
                 "Default rollover disabled for new budgets"
             }
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupFinnhubApiKey() {
+        val currentKey = ApiKeyStore.getApiKey(this)
+        if (currentKey.isNotBlank()) {
+            binding.etFinnhubKey.setText(currentKey)
+            binding.tvApiKeyStatus.text = "Status: Key configured"
+            binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.income_green))
+        } else {
+            binding.tvApiKeyStatus.text = "Status: Not configured (enter a free key from finnhub.io)"
+            binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+        }
+
+        binding.btnTestSaveKey.setOnClickListener {
+            val enteredKey = ApiKeyStore.sanitizeApiKey(binding.etFinnhubKey.text?.toString().orEmpty())
+            if (enteredKey.isBlank()) {
+                binding.tilFinnhubKey.error = "Please enter an API key"
+                return@setOnClickListener
+            }
+            binding.tilFinnhubKey.error = null
+            binding.btnTestSaveKey.isEnabled = false
+            binding.btnTestSaveKey.text = "Testing..."
+
+            lifecycleScope.launch {
+                try {
+                    val testService = ApiClient.createFinnhubService(enteredKey)
+                    val quote = testService.getQuote("AAPL")
+                    if (quote.currentPrice > 0 || quote.timestamp > 0) {
+                        ApiKeyStore.saveApiKey(this@SettingsActivity, enteredKey)
+                        binding.tvApiKeyStatus.text = "Status: Connected & Verified ✓ (AAPL: ₹${quote.currentPrice})"
+                        binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.income_green))
+                        Toast.makeText(this@SettingsActivity, "Finnhub API key verified and saved!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        ApiKeyStore.saveApiKey(this@SettingsActivity, enteredKey)
+                        binding.tvApiKeyStatus.text = "Status: Connected & Saved ✓"
+                        binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.income_green))
+                        Toast.makeText(this@SettingsActivity, "Finnhub API key saved!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    val errorMsg = e.message ?: "Failed to connect"
+                    binding.tvApiKeyStatus.text = "Status: Verification failed ($errorMsg)"
+                    binding.tvApiKeyStatus.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.expense_red))
+                    Toast.makeText(this@SettingsActivity, "Invalid key or connection error: $errorMsg", Toast.LENGTH_LONG).show()
+                } finally {
+                    binding.btnTestSaveKey.isEnabled = true
+                    binding.btnTestSaveKey.text = "Test & Save Key"
+                }
+            }
         }
     }
 

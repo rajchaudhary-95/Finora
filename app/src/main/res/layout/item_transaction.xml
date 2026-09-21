@@ -128,7 +128,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/expense_red"
-                tools:text="-$45.20" />
+                tools:text="-₹45.20" />
 
             <ImageView
                 android:id="@+id/iv_chevron"

@@ -161,17 +161,8 @@ class DashboardFragment : Fragment() {
                 // Net Worth Breakdown
                 launch {
                     viewModel.netWorthBreakdown.collect { breakdown ->
-                        if (breakdown.totalNetWorth >= 0.0) {
-                            binding.tvNetWorthAmount.text = String.format(Locale.US, "$%,.2f", breakdown.totalNetWorth)
-                        } else {
-                            binding.tvNetWorthAmount.text = String.format(Locale.US, "-$%,.2f", Math.abs(breakdown.totalNetWorth))
-                        }
-                        binding.tvNetWorthBreakdown.text = String.format(
-                            Locale.US,
-                            "Cash: $%,.2f • Investments: $%,.2f",
-                            breakdown.cashBalance,
-                            breakdown.investmentValue
-                        )
+                        binding.tvNetWorthAmount.text = com.example.finora.util.CurrencyFormatter.format(breakdown.totalNetWorth)
+                        binding.tvNetWorthBreakdown.text = "Cash: ${com.example.finora.util.CurrencyFormatter.format(breakdown.cashBalance)} • Investments: ${com.example.finora.util.CurrencyFormatter.format(breakdown.investmentValue)}"
                     }
                 }
 
@@ -216,7 +207,7 @@ class DashboardFragment : Fragment() {
         categories: List<com.example.finora.data.db.entities.Category>
     ) {
         val totalSpent = spendingList.sumOf { it.total }
-        binding.tvTotalMonthSpent.text = String.format(Locale.US, "$%,.2f", totalSpent)
+        binding.tvTotalMonthSpent.text = com.example.finora.util.CurrencyFormatter.format(totalSpent)
 
         if (spendingList.isEmpty() || totalSpent <= 0.0) {
             binding.pieChartSpending.visibility = View.GONE
@@ -288,12 +279,7 @@ class DashboardFragment : Fragment() {
             )
 
             itemBinding.tvGlanceCategoryName.text = item.category?.name ?: "Category ${item.budget.categoryId}"
-            itemBinding.tvGlanceSpentLimit.text = String.format(
-                Locale.US,
-                "$%,.2f of $%,.2f",
-                item.spentSoFar,
-                item.effectiveLimit
-            )
+            itemBinding.tvGlanceSpentLimit.text = "${com.example.finora.util.CurrencyFormatter.format(item.spentSoFar)} of ${com.example.finora.util.CurrencyFormatter.format(item.effectiveLimit)}"
             itemBinding.pbGlanceProgress.progress = item.progressPercent
 
             val (tintColor, badgeBg) = when (item.status) {

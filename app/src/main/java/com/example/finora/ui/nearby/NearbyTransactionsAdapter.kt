@@ -53,10 +53,10 @@ class NearbyTransactionsAdapter(
 
             val isIncome = item.category?.type?.equals("INCOME", ignoreCase = true) == true
             if (isIncome) {
-                binding.tvNearbyAmount.text = String.format(Locale.US, "+$%,.2f", tx.amount)
+                binding.tvNearbyAmount.text = "+${com.example.finora.util.CurrencyFormatter.format(tx.amount)}"
                 binding.tvNearbyAmount.setTextColor(ContextCompat.getColor(context, R.color.income_green))
             } else {
-                binding.tvNearbyAmount.text = String.format(Locale.US, "-$%,.2f", tx.amount)
+                binding.tvNearbyAmount.text = "-${com.example.finora.util.CurrencyFormatter.format(tx.amount)}"
                 binding.tvNearbyAmount.setTextColor(ContextCompat.getColor(context, R.color.expense_red))
             }
 

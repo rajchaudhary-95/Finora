@@ -105,13 +105,9 @@ class BudgetFragment : Fragment() {
 
                 launch {
                     viewModel.budgetSummary.collect { summary ->
-                        binding.tvSummaryBudgeted.text = String.format(Locale.US, "$%,.2f", summary.totalBudgeted)
-                        binding.tvSummarySpent.text = String.format(Locale.US, "$%,.2f", summary.totalSpent)
-                        if (summary.totalRemaining >= 0.0) {
-                            binding.tvSummaryRemaining.text = String.format(Locale.US, "$%,.2f", summary.totalRemaining)
-                        } else {
-                            binding.tvSummaryRemaining.text = String.format(Locale.US, "-$%,.2f", Math.abs(summary.totalRemaining))
-                        }
+                        binding.tvSummaryBudgeted.text = com.example.finora.util.CurrencyFormatter.format(summary.totalBudgeted)
+                        binding.tvSummarySpent.text = com.example.finora.util.CurrencyFormatter.format(summary.totalSpent)
+                        binding.tvSummaryRemaining.text = com.example.finora.util.CurrencyFormatter.format(summary.totalRemaining)
                     }
                 }
             }

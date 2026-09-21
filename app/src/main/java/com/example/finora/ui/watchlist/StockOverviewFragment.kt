@@ -119,7 +119,7 @@ class StockOverviewFragment : Fragment() {
         binding.tvDetailName.text = if (stock.displayName.isNotBlank()) stock.displayName else stock.symbol
 
         if (stock.lastKnownPrice > 0.0) {
-            binding.tvDetailPrice.text = String.format(Locale.US, "$%,.2f", stock.lastKnownPrice)
+            binding.tvDetailPrice.text = com.example.finora.util.CurrencyFormatter.format(stock.lastKnownPrice)
         } else {
             binding.tvDetailPrice.text = "--"
         }
@@ -150,22 +150,23 @@ class StockOverviewFragment : Fragment() {
             binding.layoutNotHeld.visibility = View.GONE
 
             binding.tvHoldingShares.text = String.format(Locale.US, "%.2f", holding.sharesOwned)
-            binding.tvHoldingAvgPrice.text = String.format(Locale.US, "$%,.2f", holding.avgBuyPrice)
+            binding.tvHoldingAvgPrice.text = com.example.finora.util.CurrencyFormatter.format(holding.avgBuyPrice)
 
             val marketValue = holding.sharesOwned * currentPrice
             val totalCost = holding.sharesOwned * holding.avgBuyPrice
             val totalReturn = marketValue - totalCost
             val returnPercent = if (totalCost > 0.0) (totalReturn / totalCost) * 100.0 else 0.0
 
-            binding.tvHoldingMarketValue.text = String.format(Locale.US, "$%,.2f", marketValue)
+            binding.tvHoldingMarketValue.text = com.example.finora.util.CurrencyFormatter.format(marketValue)
 
-            val prefix = if (totalReturn >= 0.0) "+" else ""
+            val sign = if (totalReturn >= 0.0) "+" else "-"
+            val pctSign = if (totalReturn >= 0.0) "+" else ""
             binding.tvHoldingTotalReturn.text = String.format(
-                Locale.US,
-                "%s$%,.2f (%s%.1f%%)",
-                prefix,
-                totalReturn,
-                prefix,
+                Locale.getDefault(),
+                "%s%s (%s%.1f%%)",
+                sign,
+                com.example.finora.util.CurrencyFormatter.format(kotlin.math.abs(totalReturn)),
+                pctSign,
                 returnPercent
             )
 
@@ -214,11 +215,7 @@ class StockOverviewFragment : Fragment() {
             val shares = dialogBinding.etSharesOwned.text?.toString()?.toDoubleOrNull() ?: 0.0
             val price = dialogBinding.etAvgBuyPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
             val totalCost = shares * price
-            dialogBinding.tvHoldingCostPreview.text = String.format(
-                Locale.US,
-                "Total Cost Basis: $%,.2f",
-                totalCost
-            )
+            dialogBinding.tvHoldingCostPreview.text = "Total Cost Basis: ${com.example.finora.util.CurrencyFormatter.format(totalCost)}"
         }
 
         dialogBinding.etSharesOwned.doAfterTextChanged { updateCostPreview() }

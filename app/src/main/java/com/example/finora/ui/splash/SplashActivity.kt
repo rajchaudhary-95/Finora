@@ -20,10 +20,16 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Launch MainActivity after 1200ms delay and finish SplashActivity so back doesn't return here
+        // Check session and route after 1200ms
         lifecycleScope.launch {
             delay(1200)
-            val intent = Intent(this@SplashActivity, MainActivity::class.java)
+            val sessionManager = com.example.finora.util.UserSessionManager.getInstance(this@SplashActivity)
+            val targetClass = if (sessionManager.isLoggedIn()) {
+                MainActivity::class.java
+            } else {
+                com.example.finora.ui.auth.LoginActivity::class.java
+            }
+            val intent = Intent(this@SplashActivity, targetClass)
             startActivity(intent)
             finish()
         }

@@ -5,11 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/background_light">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:background="@color/surface_card">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -32,6 +34,76 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <!-- User Profile & Account Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_user_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/divider_color"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_finora_logo"
+                            android:contentDescription="User Avatar" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="14dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_user_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                tools:text="User" />
+
+                            <TextView
+                                android:id="@+id/tv_user_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                tools:text="user@example.com" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_logout"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="Log Out"
+                        android:textColor="@color/expense_red"
+                        app:strokeColor="@color/expense_red"
+                        app:cornerRadius="10dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Category Management Card -->
             <com.google.android.material.card.MaterialCardView
@@ -86,6 +158,8 @@
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
                             android:paddingHorizontal="12dp"
+                            android:singleLine="true"
+                            android:maxLines="1"
                             android:text="Add"
                             android:textColor="@color/primary_teal"
                             android:textSize="12sp"
@@ -166,6 +240,97 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Market Data (Finnhub API) Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/divider_color"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Market Data (Finnhub API)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Used for stock quotes and watchlist data. Register free at finnhub.io."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_finnhub_key"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Finnhub API Key"
+                        app:boxStrokeColor="@color/primary_teal"
+                        app:endIconMode="clear_text"
+                        app:hintTextColor="@color/primary_teal">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_finnhub_key"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textNoSuggestions"
+                            android:maxLines="1"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_api_key_status"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:text="Key configured: No" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_test_save_key"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="14dp"
+                            android:singleLine="true"
+                            android:maxLines="1"
+                            android:text="Test &amp; Save"
+                            android:textColor="@color/primary_teal"
+                            android:textSize="12sp"
+                            app:cornerRadius="8dp"
+                            app:strokeColor="@color/primary_teal" />
+                    </LinearLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

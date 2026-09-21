@@ -90,7 +90,7 @@
                     android:layout_marginTop="2dp"
                     android:textSize="13sp"
                     android:textColor="@color/text_secondary"
-                    tools:text="$125.50 spent of $250.00" />
+                    tools:text="₹125.50 spent of ₹250.00" />
             </LinearLayout>
 
             <LinearLayout
@@ -106,7 +106,7 @@
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:textColor="@color/income_green"
-                    tools:text="$124.50 left" />
+                    tools:text="₹124.50 left" />
 
                 <TextView
                     android:id="@+id/tv_status_percent"

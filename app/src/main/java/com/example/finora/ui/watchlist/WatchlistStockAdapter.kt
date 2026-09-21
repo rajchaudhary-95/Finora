@@ -44,7 +44,7 @@ class WatchlistStockAdapter(
 
             // Price formatting
             if (stock.lastKnownPrice > 0.0) {
-                binding.tvStockPrice.text = String.format(Locale.US, "$%,.2f", stock.lastKnownPrice)
+                binding.tvStockPrice.text = com.example.finora.util.CurrencyFormatter.format(stock.lastKnownPrice)
             } else {
                 binding.tvStockPrice.text = "--"
             }

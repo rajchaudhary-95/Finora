@@ -101,7 +101,7 @@ class WatchlistRepository(
         } catch (e: HttpException) {
             val friendlyMsg = when (e.code()) {
                 429 -> "Rate limit reached (60 calls/min). Showing cached prices."
-                401, 403 -> "Finnhub API key unauthorized. Check local.properties."
+                401, 403 -> "Finnhub API key unauthorized. Configure in Settings or local.properties."
                 else -> "Market data unavailable (HTTP ${e.code()})."
             }
             Log.e(TAG, "HttpException for $cleanSymbol: $friendlyMsg", e)
@@ -145,7 +145,7 @@ class WatchlistRepository(
         } catch (e: HttpException) {
             val friendlyMsg = when (e.code()) {
                 429 -> "Rate limit reached. Please wait a moment."
-                401, 403 -> "Finnhub API key unauthorized. Check local.properties."
+                401, 403 -> "Finnhub API key unauthorized. Configure in Settings or local.properties."
                 else -> "Symbol search unavailable (HTTP ${e.code()})."
             }
             Log.e(TAG, "Search HttpException: $friendlyMsg", e)
